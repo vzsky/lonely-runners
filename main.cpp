@@ -538,31 +538,6 @@ int main()
   // // unexpected but this is faster than mult={3,3},
   // std::vector<Config> config = {Maybe(2), Maybe(2), Force(3), Force(3)};
 
-  constexpr int K             = 11;
-  constexpr std::array primes = {
-      // failed, can try again:
-      // 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
-      // 101, 103, 107, 109,
-      // untested
-      //
-      577,
-      // not needed if can get 149 to 317
-      // 587, 599, 601, 607, 613, 617, 619, 631, 641, 643, 647,
-
-      // below is confirmed
-      211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 331, 337, 347, 349, 353, 359, 367, 379, 383,
-      // 557, 563, 569, 571, 
-      // 389, 149, 157, 181, 269, 23, 131, 137, 139, 151, 163, 167,
-      // 173, 179, 191, 193, 197, 199,  271, 277, 281, 283, 293,
-      // 307, 311, 313, 317, 
-      // 373, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479,
-      // 487, 491, 499, 503, 509, 521, 523, 541, 547, 
-      //
-  };
-  constexpr std::array config = {Force(2), Force(2), Maybe(2), Maybe(2), Force(3), Maybe(3)};
-
-  // constexpr std::array config = {Force(2), Force(2), Maybe(2), Maybe(2), Maybe(2), Force(3), Maybe(3)};
-
   // constexpr int K =9;
   // std::vector<int> primes = {19,  53,  59,  67,  71,  73,  79,  83,  89,  97,  101, 103, 107,
   //                            109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179,
@@ -572,23 +547,14 @@ int main()
   // nothing stops us from using different config per prime
   // constexpr std::array config = {Force(2), Maybe(2), Maybe(3), Force(5)};
 
-  // constexpr int K = 9;
-  // constexpr std::array primes = {151};
-  // constexpr std::array config = {Force(2), Maybe(2), Maybe(3), Force(5), Force(11)};
-
-  // constexpr int K         = 9;
-  // std::vector<int> primes = {17};
-  // // this give CX
-  // // std::vector<Config> config = {Force(2), Maybe(2), Maybe(3), Force(5)};
-  // // this give result (wow) ((wtf))
-  // std::vector<Config> config = {Force(2), Force(2), Maybe(2), Maybe(3), Force(5)};
-  //
-  // { // safety check that config force use == K+1;
-  //   int total = 1;
-  //   for (auto [type, mult] : config)
-  //     if (type == Config::Type::Force) total *= mult;
-  //   assert(total % (K + 1) == 0);
-  // }
+  constexpr int K             = 11;
+  constexpr std::array primes = {
+      577, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 331, 337, 347, 349, 353, 359, 367, 379,
+      383, 557, 563, 569, 571, 389, 149, 157, 181, 269, 23,  131, 137, 139, 151, 163, 167, 173, 179,
+      191, 193, 197, 199, 271, 277, 281, 283, 293, 307, 311, 313, 317, 373, 397, 401, 409, 419, 421,
+      431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 547,
+  };
+  constexpr std::array config = {Force(2), Force(2), Maybe(2), Maybe(2), Force(3), Maybe(3)};
 
   roll_works<K, primes, config>(std::make_index_sequence<primes.size()>{});
 }

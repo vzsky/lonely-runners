@@ -1219,3 +1219,446 @@ Time elapsed: 3.501s
 [THREAD 0] => (n=36): S size = 0
 Time elapsed: 0.365s
 
+[THREAD 0] now=15:41:33.577695
+[THREAD 0] Parameters: p = 577, k = 11
+Base solutions (containing 1): 11
+[THREAD 0] Step1 (n=1): S size = 288
+Time elapsed: 11069.127s
+[THREAD 0] trying 2: T size = 288
+[THREAD 0] => (n=2): S size = 288
+Time elapsed: 0.10s
+[THREAD 0] trying 2: T size = 576
+[THREAD 0] => (n=4): S size = 576
+Time elapsed: 0.21s
+[THREAD 0] trying 2: T size = 1152
+[THREAD 0] => (n=4): S size = 576
+Time elapsed: 0.51s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 3.585s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.377s
+
+[THREAD 0] now=18:46:06.885148
+[THREAD 0] Parameters: p = 211, k = 11
+Base solutions (containing 1): 128042
+[THREAD 0] Step1 (n=1): S size = 756840
+Time elapsed: 27.63s
+[THREAD 0] trying 2: T size = 945
+[THREAD 0] => (n=2): S size = 945
+Time elapsed: 14.395s
+[THREAD 0] trying 2: T size = 210
+[THREAD 0] => (n=4): S size = 210
+Time elapsed: 0.26s
+[THREAD 0] trying 2: T size = 420
+[THREAD 0] => (n=4): S size = 210
+Time elapsed: 0.12s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.92s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.63s
+
+[THREAD 0] now=18:46:49.538448
+[THREAD 0] Parameters: p = 223, k = 11
+Base solutions (containing 1): 102839
+[THREAD 0] Step1 (n=1): S size = 655122
+Time elapsed: 39.129s
+[THREAD 0] trying 2: T size = 666
+[THREAD 0] => (n=2): S size = 666
+Time elapsed: 13.481s
+[THREAD 0] trying 2: T size = 222
+[THREAD 0] => (n=4): S size = 222
+Time elapsed: 0.19s
+[THREAD 0] trying 2: T size = 444
+[THREAD 0] => (n=4): S size = 222
+Time elapsed: 0.12s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 0.967s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.76s
+
+[THREAD 0] now=18:47:43.226801
+[THREAD 0] Parameters: p = 227, k = 11
+Base solutions (containing 1): 22040
+[THREAD 0] Step1 (n=1): S size = 141589
+Time elapsed: 31.566s
+[THREAD 0] trying 2: T size = 452
+[THREAD 0] => (n=2): S size = 452
+Time elapsed: 2.593s
+[THREAD 0] trying 2: T size = 226
+[THREAD 0] => (n=4): S size = 226
+Time elapsed: 0.15s
+[THREAD 0] trying 2: T size = 452
+[THREAD 0] => (n=4): S size = 226
+Time elapsed: 0.12s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.66s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.87s
+
+[THREAD 0] now=18:48:18.570368
+[THREAD 0] Parameters: p = 229, k = 11
+Base solutions (containing 1): 177727
+[THREAD 0] Step1 (n=1): S size = 1108878
+Time elapsed: 69.849s
+[THREAD 0] trying 2: T size = 1482
+[THREAD 0] => (n=2): S size = 1482
+Time elapsed: 18.936s
+[THREAD 0] trying 2: T size = 228
+[THREAD 0] => (n=4): S size = 228
+Time elapsed: 0.41s
+[THREAD 0] trying 2: T size = 456
+[THREAD 0] => (n=4): S size = 228
+Time elapsed: 0.12s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.13s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.83s
+
+[THREAD 0] now=18:49:48.507620
+[THREAD 0] Parameters: p = 233, k = 11
+Base solutions (containing 1): 72591
+[THREAD 0] Step1 (n=1): S size = 485460
+Time elapsed: 58.230s
+[THREAD 0] trying 2: T size = 580
+[THREAD 0] => (n=2): S size = 580
+Time elapsed: 8.422s
+[THREAD 0] trying 2: T size = 232
+[THREAD 0] => (n=4): S size = 232
+Time elapsed: 0.20s
+[THREAD 0] trying 2: T size = 464
+[THREAD 0] => (n=4): S size = 232
+Time elapsed: 0.14s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.123s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.85s
+
+[THREAD 0] now=18:50:56.405698
+[THREAD 0] Parameters: p = 239, k = 11
+Base solutions (containing 1): 5849
+[THREAD 0] Step1 (n=1): S size = 40579
+Time elapsed: 36.405s
+[THREAD 0] trying 2: T size = 119
+[THREAD 0] => (n=2): S size = 119
+Time elapsed: 0.644s
+[THREAD 0] trying 2: T size = 238
+[THREAD 0] => (n=4): S size = 238
+Time elapsed: 0.7s
+[THREAD 0] trying 2: T size = 476
+[THREAD 0] => (n=4): S size = 238
+Time elapsed: 0.15s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.164s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.97s
+
+[THREAD 0] now=18:51:34.742835
+[THREAD 0] Parameters: p = 241, k = 11
+Base solutions (containing 1): 190152
+[THREAD 0] Step1 (n=1): S size = 1224600
+Time elapsed: 100.199s
+[THREAD 0] trying 2: T size = 480
+[THREAD 0] => (n=2): S size = 480
+Time elapsed: 20.785s
+[THREAD 0] trying 2: T size = 240
+[THREAD 0] => (n=4): S size = 240
+Time elapsed: 0.12s
+[THREAD 0] trying 2: T size = 480
+[THREAD 0] => (n=4): S size = 240
+Time elapsed: 0.13s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.87s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.98s
+
+[THREAD 0] now=18:53:36.941139
+[THREAD 0] Parameters: p = 251, k = 11
+Base solutions (containing 1): 5467
+[THREAD 0] Step1 (n=1): S size = 38625
+Time elapsed: 54.553s
+[THREAD 0] trying 2: T size = 125
+[THREAD 0] => (n=2): S size = 125
+Time elapsed: 0.590s
+[THREAD 0] trying 2: T size = 250
+[THREAD 0] => (n=4): S size = 250
+Time elapsed: 0.6s
+[THREAD 0] trying 2: T size = 500
+[THREAD 0] => (n=4): S size = 250
+Time elapsed: 0.13s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 0.958s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.91s
+
+[THREAD 0] now=18:54:33.154945
+[THREAD 0] Parameters: p = 257, k = 11
+Base solutions (containing 1): 15837
+[THREAD 0] Step1 (n=1): S size = 120576
+Time elapsed: 113.188s
+[THREAD 0] trying 2: T size = 512
+[THREAD 0] => (n=2): S size = 512
+Time elapsed: 1.940s
+[THREAD 0] trying 2: T size = 256
+[THREAD 0] => (n=4): S size = 256
+Time elapsed: 0.15s
+[THREAD 0] trying 2: T size = 512
+[THREAD 0] => (n=4): S size = 256
+Time elapsed: 0.18s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.53s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.94s
+
+[THREAD 0] now=18:56:29.467153
+[THREAD 0] Parameters: p = 263, k = 11
+Base solutions (containing 1): 2029
+[THREAD 0] Step1 (n=1): S size = 15982
+Time elapsed: 76.308s
+[THREAD 0] trying 2: T size = 262
+[THREAD 0] => (n=2): S size = 262
+Time elapsed: 0.256s
+[THREAD 0] trying 2: T size = 262
+[THREAD 0] => (n=4): S size = 262
+Time elapsed: 0.9s
+[THREAD 0] trying 2: T size = 524
+[THREAD 0] => (n=4): S size = 262
+Time elapsed: 0.19s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.131s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.84s
+
+[THREAD 0] now=18:56:29.467153
+[THREAD 0] Parameters: p = 263, k = 11
+Base solutions (containing 1): 2029
+[THREAD 0] Step1 (n=1): S size = 15982
+Time elapsed: 76.308s
+[THREAD 0] trying 2: T size = 262
+[THREAD 0] => (n=2): S size = 262
+Time elapsed: 0.256s
+[THREAD 0] trying 2: T size = 262
+[THREAD 0] => (n=4): S size = 262
+Time elapsed: 0.9s
+[THREAD 0] trying 2: T size = 524
+[THREAD 0] => (n=4): S size = 262
+Time elapsed: 0.19s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.131s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.84s
+
+[THREAD 0] now=18:57:47.278340
+[THREAD 0] Parameters: p = 331, k = 11
+Base solutions (containing 1): 310
+[THREAD 0] Step1 (n=1): S size = 3135
+Time elapsed: 375.942s
+[THREAD 0] trying 2: T size = 165
+[THREAD 0] => (n=2): S size = 165
+Time elapsed: 0.70s
+[THREAD 0] trying 2: T size = 330
+[THREAD 0] => (n=4): S size = 330
+Time elapsed: 0.8s
+[THREAD 0] trying 2: T size = 660
+[THREAD 0] => (n=4): S size = 330
+Time elapsed: 0.24s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 2.965s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.225s
+
+[THREAD 0] now=19:04:06.518920
+[THREAD 0] Parameters: p = 337, k = 11
+Base solutions (containing 1): 3128
+[THREAD 0] Step1 (n=1): S size = 30408
+Time elapsed: 812.298s
+[THREAD 0] trying 2: T size = 504
+[THREAD 0] => (n=2): S size = 504
+Time elapsed: 0.783s
+[THREAD 0] trying 2: T size = 336
+[THREAD 0] => (n=4): S size = 336
+Time elapsed: 0.30s
+[THREAD 0] trying 2: T size = 672
+[THREAD 0] => (n=4): S size = 336
+Time elapsed: 0.35s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 3.503s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.209s
+
+[THREAD 0] now=19:17:43.390050
+[THREAD 0] Parameters: p = 347, k = 11
+Base solutions (containing 1): 215
+[THREAD 0] Step1 (n=1): S size = 2249
+Time elapsed: 459.12s
+[THREAD 0] trying 2: T size = 173
+[THREAD 0] => (n=2): S size = 173
+Time elapsed: 0.52s
+[THREAD 0] trying 2: T size = 346
+[THREAD 0] => (n=4): S size = 346
+Time elapsed: 0.10s
+[THREAD 0] trying 2: T size = 692
+[THREAD 0] => (n=4): S size = 346
+Time elapsed: 0.25s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 2.634s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.239s
+
+
+[THREAD 0] now=19:25:25.369251
+[THREAD 0] Parameters: p = 349, k = 11
+Base solutions (containing 1): 1796
+[THREAD 0] Step1 (n=1): S size = 18096
+Time elapsed: 631.450s
+[THREAD 0] trying 2: T size = 522
+[THREAD 0] => (n=2): S size = 522
+Time elapsed: 0.341s
+[THREAD 0] trying 2: T size = 348
+[THREAD 0] => (n=4): S size = 348
+Time elapsed: 0.18s
+[THREAD 0] trying 2: T size = 696
+[THREAD 0] => (n=4): S size = 348
+Time elapsed: 0.24s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.788s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.146s
+
+[THREAD 0] now=19:35:59.146601
+[THREAD 0] Parameters: p = 353, k = 11
+Base solutions (containing 1): 508
+[THREAD 0] Step1 (n=1): S size = 5104
+Time elapsed: 481.890s
+[THREAD 0] trying 2: T size = 176
+[THREAD 0] => (n=2): S size = 176
+Time elapsed: 0.105s
+[THREAD 0] trying 2: T size = 352
+[THREAD 0] => (n=4): S size = 352
+Time elapsed: 0.8s
+[THREAD 0] trying 2: T size = 704
+[THREAD 0] => (n=4): S size = 352
+Time elapsed: 0.24s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.638s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.153s
+
+[THREAD 0] now=19:44:02.974175
+[THREAD 0] Parameters: p = 359, k = 11
+Base solutions (containing 1): 134
+[THREAD 0] Step1 (n=1): S size = 1432
+Time elapsed: 381.588s
+[THREAD 0] trying 2: T size = 179
+[THREAD 0] => (n=2): S size = 179
+Time elapsed: 0.32s
+[THREAD 0] trying 2: T size = 358
+[THREAD 0] => (n=4): S size = 358
+Time elapsed: 0.9s
+[THREAD 0] trying 2: T size = 716
+[THREAD 0] => (n=4): S size = 358
+Time elapsed: 0.25s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.962s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.180s
+
+[THREAD 0] now=19:50:26.778862
+[THREAD 0] Parameters: p = 367, k = 11
+Base solutions (containing 1): 142
+[THREAD 0] Step1 (n=1): S size = 1647
+Time elapsed: 565.807s
+[THREAD 0] trying 2: T size = 183
+[THREAD 0] => (n=2): S size = 183
+Time elapsed: 0.42s
+[THREAD 0] trying 2: T size = 366
+[THREAD 0] => (n=4): S size = 366
+Time elapsed: 0.9s
+[THREAD 0] trying 2: T size = 732
+[THREAD 0] => (n=4): S size = 366
+Time elapsed: 0.28s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.802s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.155s
+
+[THREAD 0] now=19:59:54.630679
+[THREAD 0] Parameters: p = 379, k = 11
+Base solutions (containing 1): 112
+[THREAD 0] Step1 (n=1): S size = 1512
+Time elapsed: 723.413s
+[THREAD 0] trying 2: T size = 189
+[THREAD 0] => (n=2): S size = 189
+Time elapsed: 0.35s
+[THREAD 0] trying 2: T size = 378
+[THREAD 0] => (n=4): S size = 378
+Time elapsed: 0.10s
+[THREAD 0] trying 2: T size = 756
+[THREAD 0] => (n=4): S size = 378
+Time elapsed: 0.26s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.993s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.176s
+
+[THREAD 0] now=20:12:00.293614
+[THREAD 0] Parameters: p = 383, k = 11
+Base solutions (containing 1): 12
+[THREAD 0] Step1 (n=1): S size = 191
+Time elapsed: 649.482s
+[THREAD 0] trying 2: T size = 191
+[THREAD 0] => (n=2): S size = 191
+Time elapsed: 0.5s
+[THREAD 0] trying 2: T size = 382
+[THREAD 0] => (n=4): S size = 382
+Time elapsed: 0.10s
+[THREAD 0] trying 2: T size = 764
+[THREAD 0] => (n=4): S size = 382
+Time elapsed: 0.26s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=12): S size = 0
+Time elapsed: 1.919s
+[THREAD 0] trying 3: T size = 0
+[THREAD 0] => (n=36): S size = 0
+Time elapsed: 0.176s
+
+Time: 2026-03-13T20:22:51+00:00
