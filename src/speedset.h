@@ -57,6 +57,12 @@ template <int K> struct SpeedSet
 
   bool operator==(const SpeedSet& o) const = default;
 
+  SpeedSet<K> project (int p) const {
+    SpeedSet<K> result (mSet);
+    for (int i = 0; i < K; i++) result.mSet[i] %= p;
+    return result;
+  }
+
 private:
   friend struct SpeedSetHasher<K>;
 };
@@ -81,5 +87,12 @@ template <int K> struct SpeedSetHasher
 };
 
 template <int K> using SetOfSpeedSets = std::unordered_set<SpeedSet<K>, SpeedSetHasher<K>>;
+
+template <int K> std::ostream& operator<<(std::ostream& os, const SetOfSpeedSets<K>& s)
+{
+  for (auto x : s) os << "( "<< x << " ), ";
+  return os;
+}
+
 
 

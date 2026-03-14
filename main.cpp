@@ -17,7 +17,8 @@ struct Config
   enum class Type
   {
     Force,
-    Maybe
+    Maybe,
+    Project
   } type;
   int prime;
 };
@@ -471,13 +472,34 @@ template <int K, int P, std::array config> bool check_prime(int thread_id = 0)
       std::cout << std::format("[THREAD {}] SKIPPED", thread_id);
       continue;
     }
+    if (mult == 11) std::cout << print_time() << " begining lift 11 with: " << S << std::endl;
     if (mult == last_skip) continue;
     timeit([&]
     {
       lift::Context C2 = lift::make_context(P, K, current_n * mult, true);
       auto T           = lift::find_lifted_covers_parallel(C2, S, mult);
       std::cout << std::format("[THREAD {}] trying {}: T size = {}", thread_id, mult, T.size()) << std::endl;
-      if (type == Config::Type::Force || T.size() <= S.size())
+      // std::cout << T << std::endl;
+      if (type == Config::Type::Project)
+      {
+        SetOfSpeedSets<K> A, B, I;
+        for (auto elem : S)
+        {
+          A.insert(elem.project(P).get_sorted_set());
+        }
+        for (auto elem : T)
+        {
+          B.insert(elem.project(P).get_sorted_set());
+        }
+        for (auto elem : A)
+        {
+          if (B.count(elem)) I.insert(elem);
+        }
+        S = std::move(I);
+        // std::cout << S << std::endl;
+        current_n = 1;
+      }
+      else if (type == Config::Type::Force || T.size() <= S.size())
       {
         S = std::move(T);
         current_n *= mult;
@@ -509,8 +531,9 @@ void roll_works(std::index_sequence<Is...>)
 
 int main()
 {
-  constexpr auto Force = [](int p) { return Config{Config::Type::Force, p}; };
-  constexpr auto Maybe = [](int p) { return Config{Config::Type::Maybe, p}; };
+  constexpr auto Force   = [](int p) { return Config{Config::Type::Force, p}; };
+  constexpr auto Maybe   = [](int p) { return Config{Config::Type::Maybe, p}; };
+  constexpr auto Project = [](int p) { return Config{Config::Type::Project, p}; };
 
   // constexpr int K             = 8;
   // constexpr std::array primes = {47,  53,  59,  61,  67,  71,  73,  79,  83,  89,  97,  101, 103,
@@ -520,18 +543,20 @@ int main()
   // constexpr std::array config = {Maybe(2), Maybe(2), Force(3), Force(3)};
   // // constexpr std::array config = {Force(3), Force(3)};
 
-  constexpr int K             = 9;
-  constexpr std::array primes = {19,  53,  59,  67,  71,  73,  79,  83,  89,  97,  101, 103, 107,
-                                 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179,
-                                 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251,
-                                 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317};
-  constexpr std::array config = {Force(2), Maybe(2), Maybe(3), Force(5)};
+  // constexpr int K             = 9;
+  // constexpr std::array primes = {19,  53,  59,  67,  71,  73,  79,  83,  89,  97,  101, 103, 107,
+  //                                109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179,
+  //                                181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251,
+  //                                257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317};
+  // constexpr std::array config = {Force(2), Maybe(2), Maybe(3), Force(5)};
 
-  // constexpr int K             = 10;
-  // constexpr std::array primes = {
-  //     193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251,
-  // };
-  // constexpr std::array config = {Maybe(2), Maybe(2), Maybe(3), Maybe(5), Maybe(7), Force(11)};
+  constexpr int K             = 10;
+  constexpr std::array primes = {
+      131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191,
+      193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251,
+  };
+  constexpr std::array config = {Maybe(2), Project(2), Maybe(3),   Project(3),
+                                 Maybe(5), Project(5), Project(7), Force(11)};
 
   // constexpr int K             = 11;
   // constexpr std::array primes = {
