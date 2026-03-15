@@ -48,7 +48,7 @@
 
 \begin{document}
 
-\title{Twelve Lonely Runners}
+\title{Eleven and Twelve Lonely Runners}
 \author[T. Sungkawichai]{Touch Sungkawichai}
 \date{\today}
 \address{London, United Kingdom}
@@ -62,8 +62,7 @@
   from a common starting point, each runner is lonely at some time. A runner is said to be lonely if its distance from every 
   other runner exceeds $1/(k+1)$, where $k+1$ is the total number of runners. A computational method derived by 
   Rosenfeld~\cite{Rosenfeld} and Trakulthongchai~\cite{Trakulthongchai} verified the conjecture for up to ten runners
-  In this work, we prove that the Lonely Runner Conjecture in the 12 runners cases holds provided that  
-  it holds in the 11 runners case.
+  In this work, we provide computer-assisted proofs that the Lonely Runner Conjecture holds in the 11 and 12 runners cases.
 \end{abstract}
 
 \bigskip
@@ -97,7 +96,7 @@ Building on the result of Malikiosis~\cite{Malikiosis}, Rosenfeld \cite{Rosenfel
 Trakulthongchai~\cite{Trakulthongchai} improved the computational search to assert for 9 and 10 runners.
 
 In this work, we improved the computational method used by Rosenfeld and Trakulthongchai to conclude 
-that if the conjecture holds for $11$ runners, it also holds for 12 runners.
+that the conjecture holds for 11 and 12 runners.
 
 \section*{Rosenfeld's and Trakulthongchai's Computational Method}
 By Corollary 3 of \cite{Rosenfeld}, derived from the result of Malikiosis, Santos, Schymura \cite{Malikiosis},
@@ -182,11 +181,10 @@ Consequently, when enumerating possible counterexamples modulo $p$ it suffices t
 only \textit{normalized} sets of the form $\{1,u_2,\dots,u_k\}$.  This reduces the search space by a factor of $p$. 
 
 When lifting $I(k, l, p)$ to $I(k, cl, p)$ by a multiplier $c$, the \textit{shadow}, as described in \cite{Trakulthongchai},
-of $I(k, l, p)$ at level $cl$ is the product of component-wise preimage of the natural projection $\pi: \Int{lp} \to \Int{clp}$.
+of $I(k, l, p)$ at level $cl$ is the preimage of the coordinate-wise extension of the natural projection $\pi: \Int{clp} \to \Int{lp}$.
 Formally 
-\[ \delta_{cl}I(k, l, p) = \bigcup_{v \in I(k,l,p)} \prod_{i=1}^k \pi^{-1}(v_i) \]
-where $\pi: \Int{clp} \to \Int{lp}$ is the natural projection. This motivates the following lemma~\ref{lemmacomp} as an extension of 
-lemma~\ref{lemmaprime} for $l > 1$.
+\[ \delta_{cl}(S) = (\pi^k)^{-1} (S) \text{ where } \pi^k (v_1, \dots, v_k) := (\pi(v_1), \dots, \pi(v_k)) \]
+This motivates the following lemma~\ref{lemmacomp} as an extension of lemma~\ref{lemmaprime} for $l > 1$.
 
 \begin{lemma}
   Let $\gcd(l, p) = 1$ and $\pi: \Int{pl} \to \Int{p}$ be the natural projection.
@@ -242,9 +240,8 @@ implementation remains faithful to the original algorithmic ideas but is
 significantly faster in practice.
 
 \section*{Introducing intermediate sieves}
-In this section, we write $I'(k, l, p) := I(k, l, p)/\Unit{p}$.
-
 This idea was developed from the suggestion introduced by Trakulthongchai in section 7 of \cite{Trakulthongchai}.
+In this section, we write $I'(k, l, p) := I(k, l, p)/\Unit{p}$.
 
 The cost of lifting $I'(k, l, p)$ to $I'(k, cl, p)$ is proportional to $|I'(k, l, p)| \cdot c^k$,
 since each improper set modulo $lp$ has $c^k$ candidate preimages modulo $lcp$ to check.
@@ -292,6 +289,54 @@ For a specific number, the first method without the intermediate step could not 
 under 5 seconds with the second method. This opens up the possibility of lifting an improper set to a larger prime number and could help with 
 the verification of the conjecture for 11 runners.
 
+As discussed in Section 7 of \cite{Trakulthongchai}, a proof of the conjecture in 11 runners case cannot avoid a lift of $I(k, l, p)$ to 
+$I(k, 11l, p)$, which requires verification of $11^{10}$ candidates per element in $I(k, l, p)$. Using the seive steps and focusing 
+at $I'(k, l, p)$ instead of $I(k, l, p)$ can reduces the number of elements at interest, resulting in less computation. Another technique 
+we can employ is projection. For example once we obtain $I'(k, l, p)$, projecting the speed sets back into modulo $p$ using the natural 
+$\pi: \Int{pl} \to \Int{p}$ collapses some the improper sets from $I'(k, l, p)$, maintaining only the structure in $\Int{p}$.
+This action loses fined grain detail of each improper speed set but reduces the number improper speed set that need calculation.
+
+The projection step is legal because of the following lemma~\ref{lemmaproj}
+\begin{lemma}
+  For a fixed $k$ and $p$, 
+  let $\pi_{a\to b}: (\Int{ap})^k \to (\Int{bp})^k$ be the coordinate-wise extension of the natural projection whenever $b \mid a$, then,
+  \[ I'(k, nl, p) \subseteq \pi_{nl \to l}^{-1} \bigr( \pi_{l \to 1}^{-1} (\pi_{n \to 1} (I'(k, n, p))) \cap I'(k, l, p) \bigl) \]
+  \label{lemmaproj}
+\end{lemma}
+\begin{proof}
+  By Lemma~3.3 of \cite{Trakulthongchai}, the projection maps satisfy
+  \begin{align}
+    I'(k,nl,p) &\subseteq \pi_{nl \to n}^{-1}\!\paren{I'(k,n,p)}, \label{eq:proj-n}\\
+    I'(k,nl,p) &\subseteq \pi_{nl \to l}^{-1}\!\paren{I'(k,l,p)}. \label{eq:proj-l}
+  \end{align}
+
+  Let $v \in I'(k,nl,p)$ be arbitrary.
+  From \eqref{eq:proj-n}, we have $\pi_{nl\to n}(v) \in I'(k,n,p)$, hence
+  \[
+    \pi_{n\to 1}\!\left(\pi_{nl\to n}(v)\right) \;\in\; \pi_{n\to 1}\!\left(I'(k,n,p)\right).
+  \]
+
+  Since $\pi_{l\to 1}\circ\pi_{nl\to l} = \pi_{nl\to 1} = \pi_{n\to 1}\circ\pi_{nl\to n}$,  
+  \[
+    \pi_{l\to 1}\!\left(\pi_{nl\to l}(v)\right) \;\in\; \pi_{n\to 1}\!\left(I'(k,n,p)\right),
+  \]
+  i.e.\ $\pi_{nl\to l}(v) \in \pi_{l\to 1}^{-1}\!\left(\pi_{n\to 1}(I'(k,n,p))\right)$.
+  Combined with \eqref{eq:proj-l}, which gives $\pi_{nl\to l}(v)\in I'(k,l,p)$, we obtain
+  \[
+    \pi_{nl\to l}(v)
+    \;\in\;
+    \pi_{l\to 1}^{-1}\!\bigl(\pi_{n\to 1}(I'(k,n,p))\bigr)
+    \;\cap\;
+    I'(k,l,p),
+  \]
+  which completes the proof.
+
+\end{proof}
+
+Intuitively, the lemma ensures that any improper speed set at level $nl$ must also be present at level $l$, 
+so projecting down $I'(k, l, p)$ to $I'(k, 1, p)$ cannot discard anything that genuinely belongs in 
+$I'(k, nl ,p)$.
+
 \section*{Result}
 
 Rosenfeld wrote \cite{rosenfeldcode} to verify the conjecture for eight runners and Trakulthongchai developed \cite{tanupatcode} to 
@@ -299,8 +344,16 @@ verify the conjecture of nine and ten runners. His computation takes
 15 minutes for $k=8$ and approximately 23 hours for $k=9$. Building on the framework of \cite{tanupatcode}, I developed \cite{mycode},
 with assistance from AI-based tools, to improve performance and scalability.
 
-Using the improvements proposed, I managed to complete the proof of $k=8$ in 12 seconds, $k=9$ in 181 seconds, and $k=11$ in approximately 
-\sorry hours on a 10-core Apple M4 processor (Macbook Air 2025). The source of the computation can be found in \cite{mycode}
+Using the improvements proposed, I managed to complete the proof of $k=8$ in 12 seconds and $k=9$ in 181 seconds on 
+a 10-core Apple M4 processor (Macbook Air 2025). 
+The proof of $k=10$ and $k=11$ were run in multiple batches which makes it more difficult to pinpoint exact time taken.
+Rough estimates would be 65 hours and 30 hours for $k=10$ and $k=11$ respectively. % \sorry check
+The source of the computation can be found in \cite{mycode}
+
+For the eleven runners case, let \[ P_{10} := \set{ \begin{aligned} 
+    \sorry
+    \end{aligned}
+  } \]
 
 For the twelve runners case, let \[ P_{11} := \set{ \begin{aligned} 
       23, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, \\ 
@@ -312,8 +365,10 @@ For the twelve runners case, let \[ P_{11} := \set{ \begin{aligned}
     \end{aligned}
   } \]
 
+\sorry for eleven runner
+
 Using the algorithm described in the previous section, I have verified
-that for every prime $p \in P_{11}$ there exists $l \in \set{9, 18, 36}$ such that the set $I(k, l, p)$ is empty.
+that for every prime $p \in P_{11}$ there exists $l \in \set{12, 24, 36}$ such that the set $I(11, l, p)$ is empty.
 Equivalently, any counterexample to the $12$-runner case of the
 Lonely Runner Conjecture must have speeds divisible by each prime in
 $P_{11}$. Consequently, if such a counterexample exists, its product of speeds must be
