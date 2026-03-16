@@ -1,5 +1,7 @@
 # Lonely Runners Conjecture
 
+Work in progress.
+
 See [here](https://github.com/t-tanupat/nine-and-ten-lonely-runners) for the original code.
 
 > **If the conjecture holds for 11 runners, then it also holds for 12 runners.**
