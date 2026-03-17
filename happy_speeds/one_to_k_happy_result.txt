@@ -1,0 +1,283 @@
+Batch Run: k=10, p from 100 to 500
+Generated on: Mon Mar 16 16:01:26 GMT 2026
+------------------------------------------------
+p=101, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 225.646 seconds on 14 CPU threads.
+------------------------------------------------
+p=103, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 156.455 seconds on 14 CPU threads.
+------------------------------------------------
+p=107, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 233.853 seconds on 14 CPU threads.
+------------------------------------------------
+p=109, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 164.780 seconds on 14 CPU threads.
+------------------------------------------------
+p=113, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 175.748 seconds on 14 CPU threads.
+------------------------------------------------
+p=127, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 170.776 seconds on 14 CPU threads.
+------------------------------------------------
+p=131, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 251.380 seconds on 14 CPU threads.
+------------------------------------------------
+p=137, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 191.896 seconds on 14 CPU threads.
+------------------------------------------------
+p=139, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 192.143 seconds on 14 CPU threads.
+------------------------------------------------
+p=149, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 271.693 seconds on 14 CPU threads.
+------------------------------------------------
+p=151, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 272.725 seconds on 14 CPU threads.
+------------------------------------------------
+p=157, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 199.631 seconds on 14 CPU threads.
+------------------------------------------------
+p=163, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 283.017 seconds on 14 CPU threads.
+------------------------------------------------
+p=167, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 213.326 seconds on 14 CPU threads.
+------------------------------------------------
+p=173, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 206.761 seconds on 14 CPU threads.
+------------------------------------------------
+p=179, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 227.824 seconds on 14 CPU threads.
+------------------------------------------------
+p=181, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 228.590 seconds on 14 CPU threads.
+------------------------------------------------
+p=191, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 232.127 seconds on 14 CPU threads.
+------------------------------------------------
+p=193, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 251.983 seconds on 14 CPU threads.
+------------------------------------------------
+p=197, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 241.370 seconds on 14 CPU threads.
+------------------------------------------------
+p=199, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 260.148 seconds on 14 CPU threads.
+------------------------------------------------
+p=211, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 251.416 seconds on 14 CPU threads.
+------------------------------------------------
+p=223, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 315.845 seconds on 14 CPU threads.
+------------------------------------------------
+p=227, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 249.730 seconds on 14 CPU threads.
+------------------------------------------------
+p=229, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 236.019 seconds on 14 CPU threads.
+------------------------------------------------
+p=233, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 259.712 seconds on 14 CPU threads.
+------------------------------------------------
+p=239, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 321.372 seconds on 14 CPU threads.
+------------------------------------------------
+p=241, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 317.826 seconds on 14 CPU threads.
+------------------------------------------------
+p=251, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 331.446 seconds on 14 CPU threads.
+------------------------------------------------
+p=257, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 328.827 seconds on 14 CPU threads.
+------------------------------------------------
+p=263, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 321.662 seconds on 14 CPU threads.
+------------------------------------------------
+p=269, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 257.570 seconds on 14 CPU threads.
+------------------------------------------------
+p=271, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 248.136 seconds on 14 CPU threads.
+------------------------------------------------
+p=277, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 280.354 seconds on 14 CPU threads.
+------------------------------------------------
+p=281, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 268.545 seconds on 14 CPU threads.
+------------------------------------------------
+p=283, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 275.848 seconds on 14 CPU threads.
+------------------------------------------------
+p=293, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 299.041 seconds on 14 CPU threads.
+------------------------------------------------
+p=307, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 371.669 seconds on 14 CPU threads.
+------------------------------------------------
+p=311, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 383.364 seconds on 14 CPU threads.
+------------------------------------------------
+p=313, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 384.738 seconds on 14 CPU threads.
+------------------------------------------------
+p=317, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 328.167 seconds on 14 CPU threads.
+------------------------------------------------
+p=331, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 276.914 seconds on 14 CPU threads.
+------------------------------------------------
+p=337, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 373.196 seconds on 14 CPU threads.
+------------------------------------------------
+p=347, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 287.672 seconds on 14 CPU threads.
+------------------------------------------------
+p=349, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 277.578 seconds on 14 CPU threads.
+------------------------------------------------
+p=353, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 307.179 seconds on 14 CPU threads.
+------------------------------------------------
+p=359, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 274.801 seconds on 14 CPU threads.
+------------------------------------------------
+p=367, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 393.351 seconds on 14 CPU threads.
+------------------------------------------------
+p=373, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 332.155 seconds on 14 CPU threads.
+------------------------------------------------
+p=379, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 322.664 seconds on 14 CPU threads.
+------------------------------------------------
+p=383, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 381.547 seconds on 14 CPU threads.
+------------------------------------------------
+p=389, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 372.750 seconds on 14 CPU threads.
+------------------------------------------------
+p=397, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 418.659 seconds on 14 CPU threads.
+------------------------------------------------
+p=401, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 322.431 seconds on 14 CPU threads.
+------------------------------------------------
+p=409, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 345.589 seconds on 14 CPU threads.
+------------------------------------------------
+p=419, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 420.660 seconds on 14 CPU threads.
+------------------------------------------------
+p=421, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 329.239 seconds on 14 CPU threads.
+------------------------------------------------
+p=431, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 426.034 seconds on 14 CPU threads.
+------------------------------------------------
+p=433, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 338.581 seconds on 14 CPU threads.
+------------------------------------------------
+p=439, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 415.942 seconds on 14 CPU threads.
+------------------------------------------------
+p=443, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 292.766 seconds on 14 CPU threads.
+------------------------------------------------
+p=449, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 399.690 seconds on 14 CPU threads.
+------------------------------------------------
+p=457, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 313.699 seconds on 14 CPU threads.
+------------------------------------------------
+p=461, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 304.674 seconds on 14 CPU threads.
+------------------------------------------------
+p=463, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 337.779 seconds on 14 CPU threads.
+------------------------------------------------
+p=467, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 341.496 seconds on 14 CPU threads.
+------------------------------------------------
+p=479, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 349.002 seconds on 14 CPU threads.
+------------------------------------------------
+p=487, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 352.338 seconds on 14 CPU threads.
+------------------------------------------------
+p=491, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 349.615 seconds on 14 CPU threads.
+------------------------------------------------
+p=499, k=10
+✅ Problem Solved: All required tuples are happy!
+Time elapsed: 366.997 seconds on 14 CPU threads.
+------------------------------------------------
