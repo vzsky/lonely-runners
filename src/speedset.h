@@ -23,7 +23,7 @@ template <int K> struct SpeedSet
   const auto end() const { return mSet.end(); }
 
   void insert(int x) { mSet[mSize++] = x; }
-  void remove(int x) { --mSize; }
+  void remove([[maybe_unused]] int x) { --mSize; }
 
   SpeedSet get_sorted_set() const
   {

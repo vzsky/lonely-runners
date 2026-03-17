@@ -1130,3 +1130,279 @@ Time elapsed: 64.311s
 Time elapsed: 8211.317s
 ===================================================================
 
+Building project...
+Execution start: 2026-03-17T21:09:22+00:00
+
+[THREAD 0] now=21:09:22.371229
+[THREAD 0] Parameters: p = 293, k = 10
+[THREAD 0] Step1 (n=1): S size = 180
+Time elapsed: 19.379s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.4s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.3s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.5s
+( 1 29 30 58 59 87 88 117 118 146  ), ( 1 36 37 72 73 74 109 110 111 146  ), ( 1 41 42 43 83 84 85 125 126 127  ), ( 1 32 33 64 65 66 97 98 130 131  ), ( 1 2 3 95 96 97 98 99 100 101  ), ( 1 48 49 50 96 97 98 99 145 146  ), ( 1 2 71 72 73 74 75 144 145 146  ), ( 1 2 3 4 5 142 143 144 145 146  ), ( 1 2 57 58 59 60 116 117 118 119  ), ( 1 2 3 4 5 6 7 8 9 10  ), 
+[THREAD 0] Counter Example Mod 293
+
+[THREAD 0] now=21:09:41.764688
+[THREAD 0] Parameters: p = 317, k = 10
+[THREAD 0] Step1 (n=1): S size = 50
+Time elapsed: 21.32s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.1s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.3s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.5s
+( 1 2 77 78 79 80 81 156 157 158  ), ( 1 44 45 46 90 91 92 135 136 137  ), ( 1 35 36 70 71 105 106 140 141 142  ), ( 1 2 3 4 5 6 7 8 9 10  ), ( 1 31 32 63 64 95 96 126 127 158  ), ( 1 39 40 78 79 80 118 119 120 158  ), ( 1 2 62 63 64 65 125 126 127 128  ), ( 1 52 53 54 104 105 106 107 157 158  ), ( 1 2 3 4 5 154 155 156 157 158  ), ( 1 2 3 103 104 105 106 107 108 109  ), 
+[THREAD 0] Counter Example Mod 317
+
+[THREAD 0] now=21:10:02.808375
+[THREAD 0] Parameters: p = 331, k = 10
+[THREAD 0] Step1 (n=1): S size = 132
+Time elapsed: 48.820s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.3s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.3s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.6s
+( 1 2 3 4 5 6 7 8 9 10  ), ( 1 2 3 107 108 109 110 111 112 113  ), ( 1 33 34 66 67 99 100 132 133 165  ), ( 1 2 65 66 67 68 131 132 133 134  ), ( 1 36 37 73 74 110 111 146 147 148  ), ( 1 2 3 4 5 161 162 163 164 165  ), ( 1 41 42 82 83 84 123 124 125 165  ), ( 1 46 47 48 94 95 96 141 142 143  ), ( 1 2 81 82 83 84 85 163 164 165  ), ( 1 54 55 56 109 110 111 112 164 165  ), 
+[THREAD 0] Counter Example Mod 331
+
+[THREAD 0] now=21:10:51.643212
+[THREAD 0] Parameters: p = 337, k = 10
+[THREAD 0] Step1 (n=1): S size = 30
+Time elapsed: 36.843s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.1s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.3s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.6s
+( 1 2 3 4 5 6 7 8 9 10  ), ( 1 37 38 74 75 76 112 113 149 150  ), ( 1 47 48 49 95 96 97 143 144 145  ), ( 1 55 56 57 111 112 113 114 167 168  ), ( 1 41 42 43 83 84 85 126 127 168  ), ( 1 2 82 83 84 85 86 166 167 168  ), ( 1 33 34 67 68 101 102 134 135 168  ), ( 1 2 66 67 68 69 133 134 135 136  ), ( 1 2 3 4 5 164 165 166 167 168  ), ( 1 2 3 109 110 111 112 113 114 115  ), 
+[THREAD 0] Counter Example Mod 337
+
+[THREAD 0] now=21:11:28.498399
+[THREAD 0] Parameters: p = 349, k = 10
+[THREAD 0] Step1 (n=1): S size = 10
+Time elapsed: 45.543s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.1s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.3s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.7s
+( 1 49 50 51 99 100 101 149 150 151  ), ( 1 2 3 113 114 115 116 117 118 119  ), ( 1 34 35 69 70 104 105 139 140 174  ), ( 1 2 85 86 87 88 89 172 173 174  ), ( 1 57 58 59 115 116 117 118 173 174  ), ( 1 38 39 77 78 116 117 154 155 156  ), ( 1 43 44 86 87 88 130 131 132 174  ), ( 1 2 68 69 70 71 138 139 140 141  ), ( 1 2 3 4 5 6 7 8 9 10  ), ( 1 2 3 4 5 170 171 172 173 174  ), 
+[THREAD 0] Counter Example Mod 349
+
+[THREAD 0] now=21:12:14.054691
+[THREAD 0] Parameters: p = 353, k = 10
+[THREAD 0] Step1 (n=1): S size = 20
+Time elapsed: 82.585s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.1s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.3s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.7s
+( 1 43 44 45 87 88 89 132 133 176  ), ( 1 2 86 87 88 89 90 174 175 176  ), ( 1 49 50 51 100 101 102 150 151 152  ), ( 1 39 40 78 79 117 118 156 157 158  ), ( 1 35 36 70 71 105 106 141 142 176  ), ( 1 2 69 70 71 72 140 141 142 143  ), ( 1 2 3 4 5 6 7 8 9 10  ), ( 1 2 3 115 116 117 118 119 120 121  ), ( 1 58 59 60 116 117 118 119 175 176  ), ( 1 2 3 4 5 172 173 174 175 176  ), 
+[THREAD 0] Counter Example Mod 353
+
+[THREAD 0] now=21:13:36.653436
+[THREAD 0] Parameters: p = 359, k = 10
+[THREAD 0] Step1 (n=1): S size = 20
+Time elapsed: 56.202s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.1s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.3s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.7s
+( 1 59 60 61 118 119 120 121 178 179  ), ( 1 39 40 41 79 80 119 120 159 160  ), ( 1 2 3 4 5 6 7 8 9 10  ), ( 1 44 45 46 89 90 91 134 135 179  ), ( 1 2 88 89 90 91 92 177 178 179  ), ( 1 2 3 117 118 119 120 121 122 123  ), ( 1 2 70 71 72 73 142 143 144 145  ), ( 1 35 36 71 72 107 108 143 144 179  ), ( 1 50 51 52 102 103 104 153 154 155  ), ( 1 2 3 4 5 175 176 177 178 179  ), 
+[THREAD 0] Counter Example Mod 359
+
+[THREAD 0] now=21:14:32.869472
+[THREAD 0] Parameters: p = 367, k = 10
+[THREAD 0] Step1 (n=1): S size = 30
+Time elapsed: 74.269s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.1s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.3s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.7s
+( 1 36 37 73 74 110 111 146 147 183  ), ( 1 2 3 4 5 6 7 8 9 10  ), ( 1 2 72 73 74 75 145 146 147 148  ), ( 1 2 90 91 92 93 94 181 182 183  ), ( 1 51 52 53 104 105 106 156 157 158  ), ( 1 60 61 62 121 122 123 124 182 183  ), ( 1 2 3 4 5 179 180 181 182 183  ), ( 1 2 3 119 120 121 122 123 124 125  ), ( 1 40 41 81 82 122 123 162 163 164  ), ( 1 45 46 47 91 92 93 137 138 183  ), 
+[THREAD 0] Counter Example Mod 367
+
+[THREAD 0] now=21:15:47.152946
+[THREAD 0] Parameters: p = 373, k = 10
+[THREAD 0] Step1 (n=1): S size = 20
+Time elapsed: 58.427s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.1s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.4s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.7s
+( 1 52 53 54 106 107 108 159 160 161  ), ( 1 2 91 92 93 94 95 184 185 186  ), ( 1 41 42 82 83 84 124 125 165 166  ), ( 1 46 47 92 93 94 139 140 141 186  ), ( 1 2 3 121 122 123 124 125 126 127  ), ( 1 2 73 74 75 76 148 149 150 151  ), ( 1 61 62 63 123 124 125 126 185 186  ), ( 1 2 3 4 5 182 183 184 185 186  ), ( 1 37 38 74 75 111 112 149 150 186  ), ( 1 2 3 4 5 6 7 8 9 10  ), 
+[THREAD 0] Counter Example Mod 373
+
+[THREAD 0] now=21:16:45.594541
+[THREAD 0] Parameters: p = 383, k = 10
+[THREAD 0] Step1 (n=1): S size = 10
+Time elapsed: 71.706s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.1s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.4s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.8s
+( 1 2 3 4 5 6 7 8 9 10  ), ( 1 2 3 125 126 127 128 129 130 131  ), ( 1 2 94 95 96 97 98 189 190 191  ), ( 1 38 39 76 77 114 115 153 154 191  ), ( 1 47 48 49 95 96 97 143 144 191  ), ( 1 54 55 56 108 109 110 163 164 165  ), ( 1 63 64 65 126 127 128 129 190 191  ), ( 1 2 75 76 77 78 152 153 154 155  ), ( 1 2 3 4 5 187 188 189 190 191  ), ( 1 42 43 84 85 86 127 128 170 171  ), 
+[THREAD 0] Counter Example Mod 383
+
+[THREAD 0] now=21:17:57.315390
+[THREAD 0] Parameters: p = 389, k = 10
+[THREAD 0] Step1 (n=1): S size = 40
+Time elapsed: 90.337s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.3s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.4s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.8s
+( 1 43 44 86 87 129 130 172 173 174  ), ( 1 2 3 127 128 129 130 131 132 133  ), ( 1 2 76 77 78 79 154 155 156 157  ), ( 1 48 49 96 97 98 145 146 147 194  ), ( 1 2 3 4 5 190 191 192 193 194  ), ( 1 38 39 77 78 116 117 155 156 194  ), ( 1 55 56 57 110 111 112 166 167 168  ), ( 1 2 3 4 5 6 7 8 9 10  ), ( 1 64 65 66 128 129 130 131 193 194  ), ( 1 2 95 96 97 98 99 192 193 194  ), 
+[THREAD 0] Counter Example Mod 389
+
+[THREAD 0] now=21:19:27.669215
+[THREAD 0] Parameters: p = 397, k = 10
+[THREAD 0] Step1 (n=1): S size = 20
+Time elapsed: 135.354s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.2s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.4s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.8s
+( 1 2 3 4 5 194 195 196 197 198  ), ( 1 56 57 58 112 113 114 169 170 171  ), ( 1 49 50 98 99 100 148 149 150 198  ), ( 1 39 40 79 80 119 120 158 159 198  ), ( 1 2 3 4 5 6 7 8 9 10  ), ( 1 2 97 98 99 100 101 196 197 198  ), ( 1 2 3 129 130 131 132 133 134 135  ), ( 1 2 78 79 80 81 157 158 159 160  ), ( 1 43 44 45 88 89 132 133 176 177  ), ( 1 65 66 67 131 132 133 134 197 198  ), 
+[THREAD 0] Counter Example Mod 397
+
+[THREAD 0] now=21:21:43.039714
+[THREAD 0] Parameters: p = 401, k = 10
+[THREAD 0] Step1 (n=1): S size = 20
+Time elapsed: 103.343s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.2s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.4s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.8s
+( 1 49 50 51 99 100 101 150 151 200  ), ( 1 2 79 80 81 82 159 160 161 162  ), ( 1 56 57 58 114 115 116 171 172 173  ), ( 1 2 98 99 100 101 102 198 199 200  ), ( 1 2 3 4 5 196 197 198 199 200  ), ( 1 2 3 131 132 133 134 135 136 137  ), ( 1 66 67 68 132 133 134 135 199 200  ), ( 1 44 45 88 89 90 133 134 178 179  ), ( 1 2 3 4 5 6 7 8 9 10  ), ( 1 40 41 80 81 120 121 160 161 200  ), 
+[THREAD 0] Counter Example Mod 401
+
+[THREAD 0] now=21:23:26.399144
+[THREAD 0] Parameters: p = 409, k = 10
+[THREAD 0] Step1 (n=1): S size = 30
+Time elapsed: 128.708s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.2s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.4s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.9s
+( 1 57 58 59 116 117 118 174 175 176  ), ( 1 2 80 81 82 83 162 163 164 165  ), ( 1 67 68 69 135 136 137 138 203 204  ), ( 1 45 46 90 91 92 136 137 181 182  ), ( 1 50 51 52 101 102 103 153 154 204  ), ( 1 40 41 81 82 122 123 163 164 204  ), ( 1 2 100 101 102 103 104 202 203 204  ), ( 1 2 3 133 134 135 136 137 138 139  ), ( 1 2 3 4 5 6 7 8 9 10  ), ( 1 2 3 4 5 200 201 202 203 204  ), 
+[THREAD 0] Counter Example Mod 409
+
+[THREAD 0] now=21:25:35.125131
+[THREAD 0] Parameters: p = 419, k = 10
+[THREAD 0] Step1 (n=1): S size = 20
+Time elapsed: 160.294s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.2s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.4s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.9s
+( 1 2 3 4 5 6 7 8 9 10  ), ( 1 52 53 104 105 106 156 157 158 209  ), ( 1 2 3 4 5 205 206 207 208 209  ), ( 1 2 82 83 84 85 166 167 168 169  ), ( 1 69 70 71 138 139 140 141 208 209  ), ( 1 46 47 92 93 94 139 140 186 187  ), ( 1 2 103 104 105 106 107 207 208 209  ), ( 1 59 60 61 119 120 121 179 180 181  ), ( 1 41 42 83 84 125 126 167 168 209  ), ( 1 2 3 137 138 139 140 141 142 143  ), 
+[THREAD 0] Counter Example Mod 419
+
+[THREAD 0] now=21:28:15.437350
+[THREAD 0] Parameters: p = 421, k = 10
+[THREAD 0] Step1 (n=1): S size = 10
+Time elapsed: 147.676s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.2s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.4s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.9s
+( 1 46 47 93 94 140 141 186 187 188  ), ( 1 42 43 84 85 126 127 168 169 210  ), ( 1 2 83 84 85 86 167 168 169 170  ), ( 1 2 3 4 5 6 7 8 9 10  ), ( 1 69 70 71 139 140 141 142 209 210  ), ( 1 52 53 104 105 106 157 158 159 210  ), ( 1 59 60 61 119 120 121 179 180 181  ), ( 1 2 3 137 138 139 140 141 142 143  ), ( 1 2 103 104 105 106 107 208 209 210  ), ( 1 2 3 4 5 206 207 208 209 210  ), 
+[THREAD 0] Counter Example Mod 421
+
+[THREAD 0] now=21:30:43.131398
+[THREAD 0] Parameters: p = 431, k = 10
+[THREAD 0] Step1 (n=1): S size = 30
+Time elapsed: 174.403s
+[THREAD 0] trying 2: T size = 10
+[THREAD 0] => (n=2): S size = 10
+Time elapsed: 0.2s
+[THREAD 0] trying 2: T size = 20
+[THREAD 0] => (n=4): S size = 20
+Time elapsed: 0.4s
+[THREAD 0] trying 2: T size = 40
+[THREAD 0] => (n=1): S size = 10
+Time elapsed: 0.10s
+( 1 71 72 73 142 143 144 145 214 215  ), ( 1 47 48 49 95 96 143 144 191 192  ), ( 1 61 62 63 122 123 124 184 185 186  ), ( 1 43 44 86 87 129 130 172 173 215  ), ( 1 2 85 86 87 88 171 172 173 174  ), ( 1 2 3 4 5 211 212 213 214 215  ), ( 1 2 106 107 108 109 110 213 214 215  ), ( 1 2 3 141 142 143 144 145 146 147  ), ( 1 53 54 55 107 108 109 161 162 215  ), ( 1 2 3 4 5 6 7 8 9 10  ), 
+[THREAD 0] Counter Example Mod 431
+
+Execution end: 2026-03-17T21:33:37+00:00

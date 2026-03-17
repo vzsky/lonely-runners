@@ -1,4 +1,5 @@
 out/
+build/
 tmp
 run_binary
 .DS_Store
