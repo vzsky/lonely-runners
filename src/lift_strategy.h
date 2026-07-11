@@ -14,7 +14,7 @@
 // State
 // ============================================================================
 
-template <int L, int P, int K> struct State
+template <int LiftLevel, int P, int K> struct State
 {
   SetOfSpeedSets<K> ansatz;
 };

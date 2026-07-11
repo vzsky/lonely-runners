@@ -18,9 +18,9 @@
 namespace lift
 {
 
-template <int N, int P, int K> struct Context
+template <int Level, int P, int K> struct Context
 {
-  static constexpr int Q = N * P;
+  static constexpr int Q = Level * P;
   using CoverBitset      = std::bitset<Q>;
 
   const CoverBitset& cover(int i) const { return mCover[i]; }
@@ -44,14 +44,14 @@ private:
   std::array<CoverBitset, Q> mCover;
 };
 
-template <int N, int P, int K> static Context<N, P, K> context{};
+template <int Level, int P, int K> static Context<Level, P, K> context{};
 
-template <int N, int P, int K> struct Dfs
+template <int NewLevel, int P, int K> struct Dfs
 {
   Dfs(std::array<std::vector<int>, K>&& cnd) : candidates{std::move(cnd)} {}
 
   SpeedSet<K> elem;
-  Context<N, P, K>::CoverBitset unionCover;
+  Context<NewLevel, P, K>::CoverBitset unionCover;
   std::array<std::vector<int>, K> candidates;
   SetOfSpeedSets<K> result;
 
@@ -59,8 +59,8 @@ template <int N, int P, int K> struct Dfs
   {
     if (elem.size() == K)
     {
-      if (unionCover.count() != context<N, P, K>.Q) return;
-      if (elem.subset_gcd_implies_proper(N)) return;
+      if (unionCover.count() != context<NewLevel, P, K>.Q) return;
+      if (elem.subset_gcd_implies_proper(NewLevel)) return;
       result.insert(elem.get_sorted_set());
       return;
     }
@@ -69,7 +69,7 @@ template <int N, int P, int K> struct Dfs
     {
       auto savedCover = unionCover;
       elem.insert(candidate);
-      unionCover |= context<N, P, K>.cover(candidate);
+      unionCover |= context<NewLevel, P, K>.cover(candidate);
       run();
       elem.remove(candidate);
       unionCover = savedCover;
@@ -77,18 +77,18 @@ template <int N, int P, int K> struct Dfs
   }
 };
 
-template <int C, int L, int P, int K> SetOfSpeedSets<K> lift(const SpeedSet<K>& seed)
+template <int Mult, int Level, int P, int K> SetOfSpeedSets<K> lift(const SpeedSet<K>& seed)
 {
-  static constexpr auto Q  = context<L * C, P, K>.Q;
+  static constexpr auto Q  = context<Level * Mult, P, K>.Q;
   const auto makeCandidate = [&]
   {
     std::array<std::vector<int>, K> cand{};
     int j = 0;
     for (const auto& s : seed)
     {
-      for (int a = 0; a < C; a++)
+      for (int a = 0; a < Mult; a++)
       {
-        long long val = (long long)s + (long long)a * (Q / C);
+        long long val = (long long)s + (long long)a * (Q / Mult);
         if (val >= Q) break;
         cand[j].push_back((int)val);
       }
@@ -99,12 +99,12 @@ template <int C, int L, int P, int K> SetOfSpeedSets<K> lift(const SpeedSet<K>& 
     return cand;
   };
 
-  Dfs<L * C, P, K> runner{makeCandidate()};
+  Dfs<Level * Mult, P, K> runner{makeCandidate()};
   runner.run();
   return runner.result;
 }
 
-template <int C, int L, int P, int K>
+template <int Mult, int Level, int P, int K>
 SetOfSpeedSets<K> find_lifted_covers_parallel(const SetOfSpeedSets<K>& seeds)
 {
   const size_t N_seeds = seeds.size();
@@ -118,7 +118,7 @@ SetOfSpeedSets<K> find_lifted_covers_parallel(const SetOfSpeedSets<K>& seeds)
   const auto worker = [&](auto begin, auto end, unsigned tid)
   {
     auto& local_results = thread_results[tid];
-    for (auto it = begin; it != end; ++it) local_results.merge(lift<C, L, P>(*it));
+    for (auto it = begin; it != end; ++it) local_results.merge(lift<Mult, Level, P>(*it));
   };
 
   size_t chunk = (N_seeds + nthreads - 1) / nthreads;
