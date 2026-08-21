@@ -19,6 +19,7 @@
 \newcommand{\rbf}{\mathbf{r}}
 \newcommand{\vbf}{\mathbf{v}}
 \newcommand{\ubf}{\mathbf{u}}
+\newcommand{\ml}{\mathrm{ML}}
 \newcommand{\onetok}{(1, 2, \dots, k)}
 
 \newtheorem{theorem}{Theorem}[section]
@@ -57,37 +58,34 @@
 \maketitle
 
 \section{Introduction}
-The Lonely Runner Conjecture arose in the study of Diophantine approximation \cite{Wills},
-though it has been reinterpreted in the context of view obstruction and billiard trajectories 
+The Lonely Runner Conjecture, posed by Wills \cite{Wills} in the 1960s, arose in the study of Diophantine approximation \cite{Wills}. It has been reinterpreted in the context of view obstruction and billiard trajectories 
 \cite{cusick1984view}, covering radii of zonotopes \cite{henze_covering_2017}, and the chromatic number of a 
 unit-distance graph \cite{zhu2002circular}. 
-It was first conjectured by Wills \cite{Wills} in 1967.
 Writing $\norm{x}$ for the distance from $x$ to the closest integer, namely $\norm{x}=\min(x-\lfloor x\rfloor, \lceil x\rceil-x)$, 
 the conjecture can be stated as follows:
 
 \begin{conjecture} \label{lonelyconj}
   Let $u_1,\ldots,u_{k+1}$ be distinct real numbers. For each $i \in\{1,\ldots,k+1\}$, there is a real number $t$ such that
-  \[ \norm{t u_i-tu_j} \ge \frac{1}{k+1} \quad \text{for all } j \ne i. \]
+  \[ \norm{t u_i-tu_j} \ge \frac{1}{k+1} \[118;1:3uquad \text{for all } j \ne i. \]
 \end{conjecture}
 
-Conjecture \ref{lonelyconj} has a popular interpretation that gives its name: if $k+1$ runners run with distinct,
+Conjecture \ref{lonelyconj} has a popular interpretation \cite{bienia1998flows} that gives its name: if $k+1$ runners run with distinct,
 constant speeds around a unit-length track, each of them will be \emph{lonely} at some time. 
 Being lonely means being at least $\tfrac{1}{k+1}$ away from other runners. 
-However, most advances work with one fewer runner and only positive integer speeds, 
-possible due to \cite{Bohman} and \cite{henze_covering_2017} that showed a reduction from Conjecture \ref{lonelyconj}
+However, the version most commonly worked with fix one runner to be stationary. Additionally, it was shown in \cite{Bohman,henze_covering_2017} (and implicit in \cite{wills1968simultanen,fourrunners}) that only positive integer speeds need to be considered. Hence, Conjecture \ref{lonelyconj} is reduced
 to a simpler Conjecture~\ref{lonelyconjred}:
 
-We say that a tuple $(u_1, \dots, u_k)$ has the \emph{LR property} if there is a real number $t$ such that 
+A tuple $(u_1, \dots, u_k)$ is said to have the \emph{LR property} if there is a real number $t$ such that 
 \[\norm{tu_i}\geq\frac{1}{k+1} \quad \text{for all } i = 1,\dots,k.\]
 Such a time $t$ where the inequalities hold is called a \emph{witness} of the LR property of $(u_1, \dots,u_k)$.
 
 \begin{conjecture} \label{lonelyconjred}
-  Every $(u_1,\ldots,u_k)\in\Z_{>0}^k$ has the \emph{LR property}.
+  Every $(u_1,\ldots,u_k)\in\Z_{>0}^k$ has the LR property.
 
   We denote this statement by $LRC(k)$ or, as customary, the Lonely Runner Conjecture for $k+1$ runners.
 \end{conjecture}
 
-Conjecture \ref{lonelyconjred} is known to hold if $\frac{1}{k+1}$ is replaced with
+Currently, Conjecture \ref{lonelyconjred} is known to hold if $\frac{1}{k+1}$ is replaced with
 $\frac{1}{2k}+\frac{1}{k^{5/3+o(1)}}$ \cite{bedert2025riesz}.
 More closely related to our approach, it is known for the cases of $k\leq9$ (that is, for at most 10 runners).
 The two smallest values of $k$ are trivial. 
@@ -98,8 +96,7 @@ settled the case $k=6$ in 2008.
 This had remained the largest verified case prior to September 2025, when Rosenfeld~\cite{Rosenfeld} introduced a new 
 framework to handle $k=7$ (and later $k=8$ \cite{rosenfeld2025lonely2}). 
 He demonstrated that, with computer assistance, the conjecture can be verified with a tractable finite calculation.
-In doing so, he relied on the finite-checking result of Malikiosis, Santos, and Schymura~\cite{Malikiosis}, 
-which is similar to a result of Giri~and~Kravitz~\cite{giri_structure_2026}. 
+In doing so, he relied on the finite-checking result of Malikiosis, Santos, and Schymura~\cite{Malikiosis}. 
 The~second~author~\cite{Trakulthongchai} then, in November 2025, 
 presented a sieving scheme that substantially reduces the work for verification, thereby proving the conjecture for $k\in\{8,9\}$. 
 
@@ -127,7 +124,9 @@ Lastly, we discuss in Section~\ref{sec:further} how this method may be further e
 
 We adopt the following notation. We write $aS=\{as:s\in S\}$ for $a\in\R$ and $S\subseteq\R$. 
 The additive group modulo $n$ is denoted $\Z_{n}$, the multiplicative group modulo $n$ is $\Unit{n}$, and 
-\[\Z_{p, l}:=\Z_{pl}\setminus p\Z_{l}.\]
+\[\Z_{p, l}=\{x\in\Z_{lp}: x\not\equiv0\pmod{p}\}.\]
+There will be numerous occasions where we treat a representative class in $\Z_n$ as an integer, but it should always be clear when this happens.
+
 Let $\pi_{m \to n}:\Z_{m} \to \Z_{n}$ denote the natural projection map when $n\mid m$
 and $\pi_n: \Z \to \Z_{n}$ denote the projection modulo $n$ of integers.
 The fractional part of $x\in\R$ is denoted by $\fracpart{x}$.
@@ -245,8 +244,8 @@ which will be used to conclude the main theorem.
 
 \section{Sieving techniques} \label{sec:sieves}
 In order to carry out our proof strategy, we need to verify that $J(k,p)=\emptyset$. 
-The first approach is to check all tuples in $\Z^{k}_{pl}$ to verify that $I(k,p,l)=\emptyset$,
-but this entails checking approximately $(pl)^k$ tuples. 
+The first approach is to check all tuples in $\Z^{k}_{lp}$ to verify that $I(k,p,l)=\emptyset$,
+but this entails checking approximately $(lp)^k$ tuples. 
 Moreover, for reasons to be given in Remark~\ref{rem:tightset},
 we need $l\geq k+1$, so this approach becomes very laborious even for $k=8$ \cite{rosenfeld2025lonely2}.
 
@@ -269,7 +268,7 @@ Before we motivate them, let us at once formalize and validate the two technique
         \end{split} \] 
         As $J(k,p)$ is a subset of $\pi_pS$ by assumption and a subset of $\pi_pI(k,p,cl)$ by definition, 
         it is also a subset of $\pi_pS'$.\footnote{This proof looks deceptively simple, and perhaps curiously, 
-          does not utilize the lifting lemma (Lemma 7,  \cite{Trakulthongchai}) anywhere. 
+          does not utilize the lifting lemma  \cite[Lemma 7]{Trakulthongchai} anywhere. 
           This is because the real work (and the very same work as the lifting lemma) has been done 
           in Lemma~\ref{lem:evenprop} to show that 
           $J(k,p)=\emptyset$ is indeed the same as $I(k,p,l)=\emptyset$ for some $l$. 
@@ -293,7 +292,7 @@ we can \emph{lift} it to the fiber in $\Z^k_{p,cl}$, and then discard all proper
 \begin{remark}
 \label{rem:tightset}
     The speed tuple $\onetok$ is lonely precisely when $t=\frac{s}{k+1}$ with $\gcd(s,k+1)=1$. 
-    Therefore, if $p>k+1$ and $k+1\nmid l$, then there is no such time in $\frac{1}{pl}\Z$,
+    Therefore, if $p>k+1$ and $k+1\nmid l$, then there is no such time in $\frac{1}{lp}\Z$,
     so $\onetok\in I(k,p,l)$. 
     In other words, if $p>k+1$, then $I(k,p,l)=\emptyset$ only if $k+1\mid l$. 
     As a consequence, if $k+1$ is prime and we start with tuples in $\Z^k_{p}$
@@ -333,9 +332,9 @@ This is due to the fact that for any set $S$,
 The only time projecting becomes counterproductive is if we lift afterwards with the same constant $c$ that was previously used,
 because then we are intersecting with the same improper set and hence no speed tuples can be further eliminated.
 
-Therefore, in general, we can lift with $c=2$ successively, then project back, 
-then lift with $c=3$ successively and project back, and so on. 
-This is the strategy that we use in our verification algorithms in Subsection~\ref{subsec:algo}.
+The strategy that we apply in practice (see Subsection~\ref{subsec:algo}), for $k+1$ prime, is to lift with $c=2$ successively and project back. For $k+1$ composite, if we project before $k+1$ is reached, we are bound to miss eliminating tight speed tuples. Although this can be easily remedied, to streamline the proof we choose not to do projection for $k=11$. 
+
+We remark that this strategy can be extended to the following: lift with $c=2$ successively and project back, then lift with $c=3$ successively and project back, and so on. This extension is unnecessary for our present goal, but is perhaps helpful for larger cases.
 
 \section{Eventual properness of
   \texorpdfstring{$(1, 2,\ldots, k)$}{(1, 2, ..., k)}
@@ -357,12 +356,12 @@ but we do so analytically instead of computationally.
 First, we prove the following Proposition \ref{prop:polynomial} which is the main ingredient used in this section.
 This proposition is combinatorially interesting in its own right.
 For convenience, we write 
-\[ N_{k} := \{ \vbf \in \Z_{k+1}^k : \vbf \ne \mathbf0 \text{ and } \vbf \text{ has at least one zero coordinate } \} \]
+\[ N_{k} := \{ \vbf \in \Z_{k+1}^k : \vbf \ne \mathbf0 \text{ and } \vbf \text{ has at least one zero coordinate}\}. \]
 \begin{proposition}
 \label{prop:polynomial}
     Let $k+1$ be an odd prime. For all vectors $\vbf \in N_k$,
     there are $s$ and $r$ in $\Unit{k+1}$ such that
-    \[s\vbf + r\onetok  \in  \{1,\ldots,k-1\}^k.\]
+    \[s\vbf + r\onetok  \in  \{1,\ldots,k-1\}^k\] as a vector in $\mathbb{Z}_{k+1}^k$.
 \end{proposition}
 \begin{proof}
     In this proof, we work in the field $\Z_{k+1}$.
@@ -500,11 +499,11 @@ With this lemma, we finally obtain the headline result that assures eventual pro
     \[ s\ubf' + \rbf_k(r/p) \in \{1,\ldots,k-1\}^k \]
     when considered modulo $k+1$. 
     This means that for each coordinate $i$, there are $A_i$ and $B_i$ such that 
-    $\fracpart{\frac{sv_i}{k+1}}=\frac{A_i}{k+1}$ and 
+    $\fracpart{\frac{su'_i}{k+1}}=\frac{A_i}{k+1}$ and 
     $\fracpart{\frac{ri}{p}}\in\left[\frac{B_i}{k+1},\frac{B_i+1}{k+1}\right)$ 
     where $C_i:=A_i+B_i$ is in $\{1,\ldots,k-1\}$ when considered modulo $k+1$. 
     Therefore,
-    \[\fracpart{tu_i}=\fracpart*{\frac{su_i}{k+1}+\frac{ri}{p}}\in\left[\frac{C_i}{k+1},\frac{C_i+1}{k+1}\right)\]
+    \[\fracpart{tu_i}=\fracpart*{\frac{su'_i}{k+1}+\frac{ri}{p}}\in\left[\frac{C_i}{k+1},\frac{C_i+1}{k+1}\right)\]
     and in particular the set on the right-hand side does not intersect with $[0,\frac{1}{k+1}) \cup (\frac{k}{k+1},1)$.  
     Since this holds for every $i$, $\ubf$ has the LR property.
 
@@ -514,7 +513,7 @@ With this lemma, we finally obtain the headline result that assures eventual pro
 Proposition \ref{prop:corlarge} implies Proposition \ref{prop:onetokintro}: 
 suppose that $\gcd(\vbf)=1$ and $\pi_p(\vbf)=\onetok$, then we have shown in Proposition~\ref{prop:corlarge}
 that $\pi_{(k+1)p}(\vbf)$ is $(k,p,k+1)$-proper. 
-If it is proper due to the gcd condition, then as $\gcd(\vbf)=1$, by the pre-jump technique (see e.g. Lemma 5, \cite{Rosenfeld}), 
+If it is proper due to the gcd condition, then as $\gcd(\vbf)=1$, by the pre-jump technique (see e.g. \cite[Lemma 3]{Rosenfeld}), 
 $\vbf$ has the LR property. 
 Otherwise, there is a time $t\in\frac{1}{(k+1)p}\Z$ such that $\norm{tv_i}\geq\frac{1}{k+1}$ for all $i$.
 
@@ -574,7 +573,7 @@ In other words, we check all tuples of integers $(v_1,\ldots,v_k)$ with
 We should stress that this reduction is essential to obtaining our results. 
 There are approximately $p^k$ tuples in the $(k,p,1)$-ansatz,
 but with this reduction we only need to check a much smaller number of approximately
-\[\binom{p/2}{k-1}\approx\frac{p^k}{2^k(k-1)!}.\]
+\[\binom{p/2}{k-1}\approx\frac{p^{k-1}}{2^k(k-1)!}.\]
 Compared to the implementation of \cite{Rosenfeld} and \cite{Trakulthongchai}, 
 we reduce the number of tuples to check by a factor of approximately $p/k$. 
 
@@ -615,6 +614,7 @@ This is why we only use $p>k^2+k$ for $k\in\{10,12\}$.\footnote{
 } Therefore, if there are only speed tuples equivalent to $\onetok$ remaining in $S_5$, we can verify the emptiness of $J(k,p)$.
 
 \subsection{Further particulars}
+\label{subsec:particulars}
 We implement the algorithms of Subsection \ref{subsec:algo} in \texttt{C++}. %nice
 Compared to the original implementations of \cite{rosenfeldcode} and \cite{tanupatcode},
 we improve practical performance by refactoring to support parallel execution and by using more memory-efficient data structures.
@@ -630,9 +630,7 @@ $k=9$ in 41 seconds (23 hours using \cite{tanupatcode}), and $k=10$ in 45 minute
 The proofs of $k=11$ and $k=12$ were run in multiple batches, with multiple versions, 
 and on multiple machines, making the exact time taken incomparable to other cases. 
 
-A heuristic estimate from the smaller cases is that the time required to verify the emptiness of $J(k, p)$ 
-grows in proportion to $\frac{p^{(k+1)/2}}{k2^k}$. Interpolating this suggests that completing the proof of $k=11$ will take approximately 
-40 hours, and $k=12$ approximately 40 days, on the same 10-core machine.
+A heuristic estimate from the smaller cases is that the time required to verify the emptiness of $J(k, p)$ grows in proportion to $\frac{p^{(k+1)/2}}{k2^k}$, which improves over \cite{rosenfeld2025lonely2}\footnote{Rosenfeld \cite{rosenfeld2025lonely2} reported heuristic asymptotic runtimes for $k=8,9$. For $k=8$, our runtime is $\Theta(p^{4.5})$ compared to his $\Theta(p^{5.7})$, and for $k=9$, our runtime is $\Theta(p^5)$ compared to his $\Theta(p^{6.5})$, ignoring the constant term depending only on $k$. An improvement by a factor of $p$ is due to the reduction modulo $p$ in Subsection \ref{subsec:equiv}, and the remaining likely arises from sieving.}. Extrapolating this model suggests that completing the proof for $k=11$ will take approximately 40 hours, and for $k=12$ approximately 40 days, on the same 10-core machine.
 
 The source of the computation, along with the log files and detailed descriptions, 
 can be found in the first author's GitHub repository \cite{mycode}.
@@ -642,7 +640,7 @@ can be found in the first author's GitHub repository \cite{mycode}.
 Computer verification shows that, for each $k\in\{10,11,12\}$, the set $P_k$ in Table~\ref{tab:primes} satisfies
 $J(k,p) = \emptyset$ for every $p\in P_k$. Moreover, for each $k$, we have that $\prod_{p \in P_k} p\geq B_k$. 
 Since $LRC(9)$ holds \cite{Trakulthongchai},
-we may apply Proposition \ref{prop:verify} thrice and conclude that $LRC(k)$ holds for $k\in\{10,11,12\}$.
+we apply Proposition \ref{prop:verify} thrice and conclude that $LRC(k)$ holds for $k\in\{10,11,12\}$.
 
 \begin{table}[ht]
 \centering
@@ -684,30 +682,50 @@ $k$ & \multicolumn{1}{c|}{$P_k$}
 \label{tab:primes}
 \end{table}
 
-\section{Concluding remarks}
-\label{sec:further}
-In Section \ref{sec:onetok}, we mentioned that, 
-surprisingly, we only need to perform $c=2$ lifts (more than once) to eliminate all speed tuples apart
-from those whose projection modulo $p$ is $\onetok$, which is a \emph{tight} speed tuple.
-From Goddyn and Wong \cite{goddyn2006tight}, a speed tuple $\vbf\in\Z_{>0}^k$ is said to be tight if the strict inequalities cannot simultaneously hold in
-the statement of Conjecture \ref{lonelyconjred}. 
+\section{Non-tight speed tuples in an ansatz}
+Define the maximum loneliness function \[\ml(\vbf)=\max_{t\in\R}\min_{i\in\{1,\ldots,k\}}\norm{tv_i}.\] Then $LRC(k)$ corresponds to the inequality $\ml(\vbf)\geq\frac{1}{k+1}$ for every $\vbf\in\Z_{>0}^k$. Goddyn and Wong \cite{goddyn2006tight} studied \emph{tight} speed tuples, namely speed tuples where the equality is attained. Indeed, tightness is precisely the condition that necessitates a sieve with $l=k+1$, as described in Remark \ref{rem:tightset}. Luckily for us, tight speed tuples are vanishingly rare, the only known (and likely only existing) tight speed tuples for $k\in\{10,11,12\}$ being $\onetok$.
 
-An easy continuity argument shows that if $\vbf$ is not tight, then there is $T$ and $\epsilon>0$
-such that every $t\in(T,T+\epsilon)$ is a witness time for $\vbf$. Therefore, for any non-tight speed tuple $\vbf$, there is $L$ such that for any $l\geq L$ there is a witness time in $\frac{1}{lp}\Z$. Our observation suggests a far stronger statement, that there is a universal $L$ for every non-tight, coprime $\vbf$.
+Nonetheless, the rarity of tight speed tuples does not explain why non-tight speed tuples can be sieved out so easily (with only three $c=2$ lifts for our prime $k+1$ case). This section provides, morally, a justification for this and a converse to Remark \ref{rem:tightset}.
+
+An easy continuity argument shows that if $\vbf$ is not tight, then $LRC(k)$ implies that there are $T$ and $\varepsilon>0$ such that every $t\in(T,T+\varepsilon)$ is a witness time for $\vbf$, so there is $L$ such that for any $l\geq L$ there is a witness time in $\frac{1}{lp}\Z$. However, perhaps we could say more, that there is a universal $L$ for every non-tight $\vbf$ in an ansatz.
 
 \begin{conjecture}
-    Let $k+1$ be a positive integer. There exists a constant $D$ such that, for any integer $d\geq D$, every non-tight speed tuple $\vbf\in\Z_{>0}^k$ with $\gcd(\vbf)=1$ has a witness time in $\frac{1}{d}\Z$.
+\label{conj:tight}
+    Let $k\geq1$. There exists a constant $p_k$ such that, for any prime $p\geq p_k$, every speed tuple $\vbf\in\Z_{p,1}^k$ not equivalent to a tight speed tuple $\ubf\in\Z_{p,1}^k$ has a witness time in $\frac{1}{p}\Z$.
 \end{conjecture}
 
-On a different note, the algebraic method in Proposition \ref{prop:polynomial} may be extensible to verify Conjecture \ref{lonelyconjred} for other classes of speed tuples.
+The condition that $p$ is prime is necessary to avoid some counterexamples that originate from tight speed tuples. Clearly, Conjecture \ref{conj:tight} is stronger than $LRC(k)$. But perhaps surprisingly, as a consequence of the spectral gap theorem of \cite{giri_structure_2026}, they are indeed equivalent.
 
-Looking ahead, the primary bottleneck in extending our results to $k = 13$ is the efficient computation of $I(k, p, 1)$. 
-Progress here likely requires a better understanding of speed tuples that do not have a witness time in an ansatz, 
+\begin{proposition}
+\label{prop:lrcimpliestight}
+    For fixed $k\geq1$, $LRC(k)$ implies Conjecture \ref{conj:tight}.
+\end{proposition}
+\begin{proof}
+    The case $k=1$ is trivial. Fix $k\geq2$ and assume $LRC(k)$. Giri and Kravitz \cite[Theorem 1.4]{giri_structure_2026} proved that the set \[\mathcal{\Tilde{S}}(k)=\{\ml(\vbf):\vbf\in\Z_{>0}^k\}\] contains no upper accumulation point. Hence, there is a uniform $\varepsilon_k>0$ such that $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$.
+    
+    Let $p_k$ be a large constant to be specified, $p>p_k$ be prime, and $\vbf\in\Z_{p,1}^k$ be not equivalent to any tight speed tuple $\ubf\in\Z_{p,1}^k$. The idea is to transform $\vbf$ using multiplication by $a\in\Unit{p}$ so that $\max\vbf$ is small compared to $p$. Partition $[0,p)^k$ into $h^k$ boxes in the natural way, with $h^k<p\leq(h+1)^k$, so $h>\frac{1}{2}p^{1/k}$ (for $p>2^k$). The set \[\{a\vbf:a\in\Z_p\}\] (reduced modulo $p$) contains $p$ points which are distinct in every entry, meaning for every $i$ \[\{av_i:a\in\Z_p\}=\Z_p.\] By pigeonhole, two of the elements $b\vbf\neq c\vbf$ lie in the same box. In particular, $a\vbf$ where $a=b-c$ lies within $\left((-p/h,p/h)\setminus\{0\}\right)^k$. Change sign in each negative entry of $a\vbf$ and let the result be $\vbf'\in(0,p/h)^k$, so \[\max \vbf'<\frac{p}{h}<2p^{1-1/k}.\] 
+    
+    As $\vbf$ and $\vbf'$ are equivalent in the ansatz, outside the ansatz there is a time $T$ where $ML(\vbf')\geq\frac{1}{k+1}+\varepsilon_k$ is attained. Observe that, for any time $t$ and index $i$, \[|\norm{tv'_i}-\norm{Tv'_i}|\leq|t-T|v'_i\leq|t-T|(2p^{1-1/k}).\] Hence, if \[|t-T|<\frac{\varepsilon_k}{2p^{1-1/k}},\] we have that $t$ is a witness time. Since we are able to choose $t\in\frac{1}{p}\Z_p$ such that $|t-T|\leq\frac{1}{2p}$, whenever $\frac{1}{2p}\leq\frac{\varepsilon_k}{2p^{1-1/k}}$, meaning $p\geq\varepsilon_k^{-k}$, there is a witness time $t=\frac{d}{p}$ with $d\in\Z$ for $\vbf'$. This time is also a witness for $a\vbf$, so $t=\frac{a^{-1}d}{p}$ where $a^{-1}$ is the inverse of $a$ modulo $p$ is a witness time for $\vbf$. In particular, we can take $p_k=\varepsilon_k^{-k}$.
+\end{proof}
+
+Proposition \ref{prop:lrcimpliestight} affirms that the speed tuples behave increasingly nicely as the ansatz gets larger, explaining why Rosenfeld's ansatz method works as well as it does.
+
+Still, the constant $p_k$ given by the proof here is enormous. Again from \cite{giri_structure_2026}, we know that $\frac{1}{k}\in\mathcal{\Tilde{S}}(k)$, so $\varepsilon_k\leq\frac{1}{k}-\frac{1}{k+1}<\frac{1}{k^2}$, hence this method always gives $p_k\geq k^{2k}$. This is much larger that what the empirical evidence suggests (which is in the hundreds for our $k$); it would be interesting to see how this gap can be closed.
+
+\section{Concluding remarks}
+\label{sec:further}
+%In Section \ref{sec:onetok}, we mentioned that, surprisingly, we only need to perform $c=2$ lifts (more than once) to eliminate all speed tuples apart from those whose projection modulo $p$ is $\onetok$, which is a \emph{tight} speed tuple. Following Goddyn and Wong \cite{goddyn2006tight}, a speed tuple $\vbf\in\Z_{>0}^k$ is said to be tight if the strict inequalities cannot simultaneously hold in the statement of Conjecture \ref{lonelyconjred}. 
+
+%An easy continuity argument shows that if $\vbf$ is not tight, then there is $T$ and $\epsilon>0$ such that every $t\in(T,T+\epsilon)$ is a witness time for $\vbf$. Therefore, for any non-tight speed tuple $\vbf$, there is $L$ such that for any $l\geq L$ there is a witness time in $\frac{1}{lp}\Z$. Our observation suggests a far stronger statement, that there is a universal $L$ for every non-tight, coprime $\vbf$.
+
+Proposition \ref{prop:polynomial} brings into picture a finite field reduction of some cases of the conjecture. The algebraic method there may be generalizable to verify Conjecture \ref{lonelyconjred} for other classes of speed tuples. This method is particularly useful when the speeds are small, so improving this could be complementary to the analytic methods that are powerful when the speeds are large.
+
+Looking ahead, from the same heuristic estimate as in Subsection \ref{subsec:particulars}, our algorithm will take $30$ years on our original machine to verify $LRC(13)$. The primary bottleneck here is the efficient computation of $I(k, p, 1)$. Progress then likely requires a better understanding of speed tuples that do not have a witness time in an ansatz, 
 which in turn could yield stronger pruning conditions and make the initial sieve more tractable. 
 
 \section*{Acknowledgements}
 The authors are most thankful to Noah Kravitz for his insightful feedback and suggestions, 
-especially on the exposition of the paper.
+especially on the exposition of the paper. We thank Jörg Wills, Jannis Dietrich, and the referees for helpful comments.
 The second author acknowledges the support from the King's Scholarship (Thailand).
 
 \bibliographystyle{amsplain}
