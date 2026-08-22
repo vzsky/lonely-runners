@@ -712,6 +712,14 @@ then $LRC(k)$ implies that there are $T$ and $\varepsilon>0$ such that every $t\
 so there is $L$ such that for any $l\geq L$ there is a witness time in $\frac{1}{lp}\Z$. 
 However, we can extend this and argue that there is a universal $L$ for every non-tight $\vbf$ in an ansatz.
 
+Giri and Kravitz \cite[Theorem 1.4]{giri_structure_2026} proved that the set 
+\[\mathcal{\Tilde{S}}(k)=\{\ml(\vbf):\vbf\in\Z_{>0}^k\}\] contains no upper accumulation point. 
+Hence, there is a uniform $\varepsilon_k>0$ such that 
+$\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$.
+We also know that $\frac{1}{k} \in \mathcal{\Tilde{S}}(k)$, 
+so $\varepsilon_k \le \frac{1}{k} - \frac{1}{k+1} < \frac{1}{k^2}$. 
+This fact will be useful for the following propositions.
+
 \begin{proposition}
 \label{prop:lrcimpliestight}
   For fixed $k\geq1$, $LRC(k)$ holds if and only if there is a constant $L_k$ such that for any integer $l \ge L_k$ and any prime $p$, 
@@ -719,14 +727,9 @@ However, we can extend this and argue that there is a universal $L$ for every no
 \end{proposition}
 \begin{proof}
   The backward direction is clear and the case when $k=1$ is vacuous.
-
   For the forward direction, fix $k\geq2$ and assume $LRC(k)$. 
-  Giri and Kravitz \cite[Theorem 1.4]{giri_structure_2026} proved that the set 
-  \[\mathcal{\Tilde{S}}(k)=\{\ml(\vbf):\vbf\in\Z_{>0}^k\}\] contains no upper accumulation point. 
-  Hence, there is a uniform $\varepsilon_k>0$ such that 
-  $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$.
-
-  Fix $L_k = \left\lceil \frac{1}{2\varepsilon_k} \right\rceil$ and consider any prime $p$.
+  Take $\varepsilon_k$ from the spectral gap theorem and fix
+  $L_k = \left\lceil \frac{1}{2\varepsilon_k} \right\rceil$ and consider any prime $p$.
   For each non-tight $\vbf$, let $T_\vbf$ be the time at which the maximum defining $\ml(\vbf)$ is attained, that is $\ml(\vbf) = \min_{i} \norm{T_\vbf v_i}$.
   For any time $t \in [T_\vbf - \frac{\varepsilon_k}{p}, T_\vbf + \frac{\varepsilon_k}{p}]$, we have that for any $i$,
   \[ \left| \norm{T_\vbf v_i} - \norm{tv_i} \right| \le \left| T_\vbf v_i - t v_i \right| = \left| T_\vbf - t \right| v_i. \]
@@ -746,7 +749,7 @@ Additionally, we can also state the proposition for a general speed tuple.
 \begin{proposition}
 \label{prop:lrcimplies-Lk}
   For fixed $k\geq1$, $LRC(k)$ holds if and only if 
-  there is a constant $L_k$ such that for any integer $l \ge L_k$ and any prime $p$, 
+  there is a constant $\Lambda_k$ such that for any integer $l \ge \Lambda_k$ and any prime $p$, 
   every speed tuple $\vbf \in \Z_{p,1}^k$ has a witness time in $\frac{1}{l(k+1)p}\Z$.
 \end{proposition}
 The proof follows directly from Proposition~\ref{prop:lrcimpliestight} and the fact that 
@@ -761,12 +764,8 @@ And with a slight shift in perspective, we can also state an analogous propositi
 \end{proposition}
 \begin{proof}
   The backward direction is obvious and the case with $k=1$ is vacuous. 
-
   For the forward direction, fix $k\geq2$ and assume $LRC(k)$.
-  Giri and Kravitz \cite[Theorem 1.4]{giri_structure_2026} proved that the set
-  \[\mathcal{\Tilde{S}}(k)=\{\ml(\vbf):\vbf\in\Z_{>0}^k\}\]
-  contains no upper accumulation point; in particular $\frac{1}{k+1}$ is not one, so
-  $\mathcal{\Tilde{S}}(k)\cap\left(\frac{1}{k+1},\frac{1}{k+1}+\varepsilon_k\right)=\emptyset$ for some $\varepsilon_k>0$.
+  Take $\varepsilon_k$ from the spectral gap theorem.
   Since $LRC(k)$ gives $\ml\geq\frac{1}{k+1}$ throughout, $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$.
 
   Let $p_k=\varepsilon_k^{-k}$, $p>p_k$ be prime, and $\vbf\in\Z_{p,1}^k$ be not equivalent to any tight speed tuple $\ubf\in\Z_{p,1}^k$.
@@ -800,8 +799,10 @@ Proposition~\ref{prop:lrcimplies-pk} is stronger than Proposition~\ref{prop:lrci
 every non-tight speed tuples should be immediately refutable without any lifts, and the only lift we need is the one with $c = k+1$ to refute
 the tight speed tuples.
 
-% TODO remark on the size of L_k, p_k
-% Still, the constant $p_k$ given by the proof here is enormous. Again from \cite{giri_structure_2026}, we know that $\frac{1}{k}\in\mathcal{\Tilde{S}}(k)$, so $\varepsilon_k\leq\frac{1}{k}-\frac{1}{k+1}<\frac{1}{k^2}$, hence this method always gives $p_k\geq k^{2k}$. This is much larger that what the empirical evidence suggests (which is in the hundreds for our $k$); it would be interesting to see how this gap can be closed.
+As mentioned above that $\varepsilon_k$ given by \cite{giri_structure_2026} must be less than $\frac{1}{k^2}$, the proposition 
+will always give $L_k \ge \frac{k^2}{2}$ and $p_k \ge k^{2k}$. Both of these are much larger than what the empirical evidence suggests, 
+which for our $k$, is $L_k \le 8$ and $p_k$ in the hundreds.
+it would be interesting to see how this gap can be closed.
 
 \section{Concluding remarks}
 \label{sec:conclude}
