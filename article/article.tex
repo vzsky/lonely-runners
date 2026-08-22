@@ -712,21 +712,15 @@ then $LRC(k)$ implies that there are $T$ and $\varepsilon>0$ such that every $t\
 so there is $L$ such that for any $l\geq L$ there is a witness time in $\frac{1}{lp}\Z$. 
 However, we can extend this and argue that there is a universal $L$ for every non-tight $\vbf$ in an ansatz.
 
-\begin{conjecture}
-\label{conj:tightL}
-    Let $k \ge 1$. There is a constant $L_k$ such that for any integer $l \ge L_k$ and any prime $p$, 
-    every speed tuple $\vbf \in \Z_{p,1}^k$ that is not a tight speed tuple has a witness time in $\frac{1}{lp}\Z$.
-\end{conjecture}
-
-Clearly, Conjecture \ref{conj:tightL} is stronger than $LRC(k)$. 
-Perhaps surprisingly, as a consequence of the spectral gap theorem of \cite{giri_structure_2026}, they are indeed equivalent.
-
 \begin{proposition}
 \label{prop:lrcimpliestight}
-  For fixed $k\geq1$, $LRC(k)$ implies Conjecture \ref{conj:tightL}.
+  For fixed $k\geq1$, $LRC(k)$ holds if and only if there is a constant $L_k$ such that for any integer $l \ge L_k$ and any prime $p$, 
+  every speed tuple $\vbf \in \Z_{p}^k$ that is not a tight speed tuple has a witness time in $\frac{1}{lp} \Z$.
 \end{proposition}
 \begin{proof}
-  The case $k=1$ is trivial. Fix $k\geq2$ and assume $LRC(k)$. 
+  The backward direction is clear and the case when $k=1$ is vacuous.
+
+  For the forward direction, fix $k\geq2$ and assume $LRC(k)$. 
   Giri and Kravitz \cite[Theorem 1.4]{giri_structure_2026} proved that the set 
   \[\mathcal{\Tilde{S}}(k)=\{\ml(\vbf):\vbf\in\Z_{>0}^k\}\] contains no upper accumulation point. 
   Hence, there is a uniform $\varepsilon_k>0$ such that 
@@ -745,18 +739,66 @@ Perhaps surprisingly, as a consequence of the spectral gap theorem of \cite{giri
   Therefore, there is a witness time in $\frac{1}{lp}\Z$.
 \end{proof}
 
-% TODO: remark on dropping the non-tight
-
 Proposition \ref{prop:lrcimpliestight} affirms that if $LRC$ holds, then all the non-tight speed tuples will be eliminated by lifting with 
 $c = 2$, possibly more than once. It also explains why Rosenfeld's ansatz method works as well as it does.
 
-% TODO: take care of p_k
-We could state a version analogous to Conjecture~\ref{conj:tightL} as follows.
-\begin{conjecture}
-\label{conj:tightP}
-  Let $k\geq1$. There exists a constant $p_k$ such that, for any prime $p\geq p_k$, 
-  every speed tuple $\vbf\in\Z_{p,1}^k$ not equivalent to a tight speed tuple $\ubf\in\Z_{p,1}^k$ has a witness time in $\frac{1}{p}\Z$.
-\end{conjecture}
+Additionally, we can also state the proposition for a general speed tuple. 
+\begin{proposition}
+\label{prop:lrcimplies-Lk}
+  For fixed $k\geq1$, $LRC(k)$ holds if and only if 
+  there is a constant $L_k$ such that for any integer $l \ge L_k$ and any prime $p$, 
+  every speed tuple $\vbf \in \Z_{p,1}^k$ has a witness time in $\frac{1}{l(k+1)p}\Z$.
+\end{proposition}
+The proof follows directly from Proposition~\ref{prop:lrcimpliestight} and the fact that 
+tight speed tuples of dimension $k$ always have witness time in $\frac{1}{k+1}\Z$.
+
+And with a slight shift in perspective, we can also state an analogous proposition.
+\begin{proposition}
+\label{prop:lrcimplies-pk}
+  For fixed $k\ge1$, $LRC(k)$ holds if and only if there is a constant $p_k$ such that for every prime $p > p_k$, every 
+  speed tuple $\vbf \in \Z_{p}^k$ that is not equivalent to a tight speed tuple $\ubf \in \Z_p^k$ has a witness time 
+  in $\frac{1}{p}\Z$.
+\end{proposition}
+\begin{proof}
+  The backward direction is obvious and the case with $k=1$ is vacuous. 
+
+  For the forward direction, fix $k\geq2$ and assume $LRC(k)$.
+  Giri and Kravitz \cite[Theorem 1.4]{giri_structure_2026} proved that the set
+  \[\mathcal{\Tilde{S}}(k)=\{\ml(\vbf):\vbf\in\Z_{>0}^k\}\]
+  contains no upper accumulation point; in particular $\frac{1}{k+1}$ is not one, so
+  $\mathcal{\Tilde{S}}(k)\cap\left(\frac{1}{k+1},\frac{1}{k+1}+\varepsilon_k\right)=\emptyset$ for some $\varepsilon_k>0$.
+  Since $LRC(k)$ gives $\ml\geq\frac{1}{k+1}$ throughout, $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$.
+
+  Let $p_k=\varepsilon_k^{-k}$, $p>p_k$ be prime, and $\vbf\in\Z_{p,1}^k$ be not equivalent to any tight speed tuple $\ubf\in\Z_{p,1}^k$.
+  Take $h:=\lfloor p^{1/k}\rfloor$ and partition $[0,p)^k$ into $h^k$ boxes of side $p/h$ in the natural way;
+  as $p$ is prime and $k \ge 2$, $h^k<p$.
+  Since $\vbf \ne 0$, the set \[\{a\vbf:a\in\Z_p\}\quad(\text{as a set in }\Z_p^k)\] contains $p$ distinct points.
+  Therefore, by the pigeonhole principle, there are distinct $b,c\in\Z_p$ such that $b\vbf$ and $c\vbf$ are in the same box.
+  Write $a:=b-c$, note that $a \ne 0$, let $\vbf'$ be the representative of $a\vbf$ in $(0, p/h)^k$, which exists since 
+  we are allowed to replace each coordinate by its absolute value.
+  Notice that $\vbf'$ is equivalent to $\vbf$, thus it is non-tight.
+
+  Let $T_{\vbf'}$ be a time where the maximum $\ml(\vbf')$ is attained.
+  Let $\delta:=\frac{\varepsilon_k h}{p}$ and consider $t\in[T_{\vbf'}-\delta,T_{\vbf'}+\delta]$.
+  For any index $i$,
+  \[ \left|\norm{T_{\vbf'}v'_i}-\norm{tv'_i}\right| \leq \left|T_{\vbf'}v'_i-tv'_i\right| = \left|T_{\vbf'}-t\right|v'_i. \]
+  Thus, 
+  \[ \norm{tv'_i} \geq \norm{T_{\vbf'}v'_i} - \left|T_{\vbf'}-t\right|v'_i
+     \geq \left(\frac{1}{k+1}+\varepsilon_k\right)-\delta\cdot\frac{p}{h} = \frac{1}{k+1}. \]
+  This implies that every such $t$ is a witness time.
+
+  As $p > \varepsilon_k^{-k}$, $h > \varepsilon_k^{-1} - 1$.
+  The interval $[T_\vbf - \delta, T_\vbf + \delta]$ of witness time has width 
+  $2\delta = \frac{2\varepsilon_k h}{p} \ge 2\frac{1 - \varepsilon_k}{p} \ge \frac{1}{p}$. 
+  This implies that the intersection of $[T-\delta, T+\delta]$ and $\frac{1}{p}\Z$ is non-empty, 
+  i.e. there is a witness time of $\vbf'$ in $\frac{1}{p}\Z$.
+
+  Finally, since $\vbf$ is equivalent to $\vbf'$, we can deduce that there will also be a witness time of $\vbf$ in $\frac{1}{p}\Z$.
+\end{proof}
+
+Proposition~\ref{prop:lrcimplies-pk} is stronger than Proposition~\ref{prop:lrcimpliestight} in the sense that for large enough prime $p$, 
+every non-tight speed tuples should be immediately refutable without any lifts, and the only lift we need is the one with $c = k+1$ to refute
+the tight speed tuples.
 
 % TODO remark on the size of L_k, p_k
 % Still, the constant $p_k$ given by the proof here is enormous. Again from \cite{giri_structure_2026}, we know that $\frac{1}{k}\in\mathcal{\Tilde{S}}(k)$, so $\varepsilon_k\leq\frac{1}{k}-\frac{1}{k+1}<\frac{1}{k^2}$, hence this method always gives $p_k\geq k^{2k}$. This is much larger that what the empirical evidence suggests (which is in the hundreds for our $k$); it would be interesting to see how this gap can be closed.
