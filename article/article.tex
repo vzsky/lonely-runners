@@ -1,3 +1,6 @@
+% TODO: 
+% claude flagged mistakes in these lines: 
+% :572 ($\pi \to \pi^{-1}$), :587/:589 (the $2^k$ constant), :576, :254, :358, :364.
 \documentclass[11pt]{amsart}
 \usepackage{graphicx}
 \usepackage{amsfonts,amsmath,amssymb,amsthm}
@@ -121,7 +124,7 @@ Our proof strategy is outlined in the next section. Section \ref{sec:sieves} dis
 technique and Section \ref{sec:onetok} is devoted to proving Proposition \ref{prop:onetokintro}. 
 We describe the verification algorithms and their implementation in Section \ref{sec:algo}, 
 the results of which establish Theorem \ref{thm:main} in Section \ref{sec:result}.
-Section~\ref{sec:tight} discusses tight speed tuples and give supporting reasons to why the sieves are effective.
+Section~\ref{sec:tight} discusses tight speed tuples and gives supporting reasons why the sieves are effective.
 Lastly, we discuss in Section~\ref{sec:conclude} how this method may be further extended.
 
 We adopt the following notation. We write $aS=\{as:s\in S\}$ for $a\in\R$ and $S\subseteq\R$. 
@@ -714,59 +717,76 @@ However, we can extend this and argue that there is a universal $L$ for every no
 
 Giri and Kravitz \cite[Theorem 1.4]{giri_structure_2026} proved that the set 
 \[\mathcal{\Tilde{S}}(k)=\{\ml(\vbf):\vbf\in\Z_{>0}^k\}\] contains no upper accumulation point. 
-Hence, there is a uniform $\varepsilon_k>0$ such that 
-$\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$.
-We also know that $\frac{1}{k} \in \mathcal{\Tilde{S}}(k)$, 
-so $\varepsilon_k \le \frac{1}{k} - \frac{1}{k+1} < \frac{1}{k^2}$. 
-This fact will be useful for the following propositions.
+Assuming $LRC(k)$, this yields the following spectral gap, on which every result in this section rests.
+
+\begin{lemma}[Spectral gap]
+\label{lem:spectralgap}
+  Let $k\geq1$ and assume $LRC(k)$. There is a constant $0 < \varepsilon_k < \frac{1}{k^2}$ such that
+  \[\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k \quad \text{for every non-tight } \vbf\in\Z_{>0}^k.\]
+\end{lemma}
+\begin{proof}
+  Assuming $LRC(k)$, we have $\ml(\vbf)\geq\frac{1}{k+1}$ for every $\vbf\in\Z_{>0}^k$, 
+  and equality holds precisely at the tight speed tuples, so $\frac{1}{k+1}=\min\mathcal{\Tilde{S}}(k)$. 
+  Since $\mathcal{\Tilde{S}}(k)$ has no upper accumulation point, there is $\varepsilon_k>0$ with 
+  $\mathcal{\Tilde{S}}(k)\cap\left(\frac{1}{k+1},\frac{1}{k+1}+\varepsilon_k\right)=\emptyset$. 
+  Every non-tight $\vbf$ has $\ml(\vbf)>\frac{1}{k+1}$ and hence $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$.
+
+  Notice also that $\frac{1}{k}\in\mathcal{\Tilde{S}}(k)$ and so 
+  $\varepsilon_k\le\frac{1}{k}-\frac{1}{k+1}=\frac{1}{k(k+1)}<\frac{1}{k^2}$.
+\end{proof}
+
+\begin{lemma}[Witness interval]
+\label{lem:witnessinterval}
+  Let $k\geq1$, assume $LRC(k)$, and let $\varepsilon_k$ be as in Lemma~\ref{lem:spectralgap}.
+  Let $\vbf\in\Z_{>0}^k$ be non-tight and let $M$ be such that $v_i \le M$ for every $i$.
+  Then there is a time interval of width $2\frac{\varepsilon_k}{M}$ such that any time in the interval is a witness time for $\vbf$.
+\end{lemma}
+\begin{proof}
+  Let $T$ be a time at which the maximum defining $\ml(\vbf)$ is attained,
+  that is $\ml(\vbf)=\min_i\norm{Tv_i}$.
+  For any $t$ with $\left|t-T\right|\leq\frac{\varepsilon_k}{M}$ and any index $i$,
+  \[ \left|\norm{Tv_i}-\norm{tv_i}\right| \leq \left|Tv_i-tv_i\right| = \left|T-t\right|v_i \leq \frac{\varepsilon_k}{M}\cdot M = \varepsilon_k. \]
+  Hence, by Lemma~\ref{lem:spectralgap},
+  \[ \norm{tv_i} \geq \norm{Tv_i}-\varepsilon_k \geq \left(\frac{1}{k+1}+\varepsilon_k\right)-\varepsilon_k = \frac{1}{k+1}. \]
+  As this holds for every $i$, the time $t$ is a witness of $\vbf$.
+\end{proof}
+
+With this gap in hand, we give two equivalent reformulations of $LRC(k)$: 
+the first bounds the lifting depth needed to resolve every non-tight speed tuple, 
+and the second shows that for all large primes no lifting is needed at all.
 
 \begin{proposition}
 \label{prop:lrcimpliestight}
   For fixed $k\geq1$, $LRC(k)$ holds if and only if there is a constant $L_k$ such that for any integer $l \ge L_k$ and any prime $p$, 
-  every speed tuple $\vbf \in \Z_{p}^k$ that is not a tight speed tuple has a witness time in $\frac{1}{lp} \Z$.
+  every speed tuple $\vbf \in \Z_{p,1}^k$ that is not a tight speed tuple has a witness time in $\frac{1}{lp} \Z$.
 \end{proposition}
 \begin{proof}
-  The backward direction is clear and the case when $k=1$ is vacuous.
+  The backward direction is clear and the case when $k=1$ is trivial.
   For the forward direction, fix $k\geq2$ and assume $LRC(k)$. 
-  Take $\varepsilon_k$ from the spectral gap theorem and fix
-  $L_k = \left\lceil \frac{1}{2\varepsilon_k} \right\rceil$ and consider any prime $p$.
-  For each non-tight $\vbf$, let $T_\vbf$ be the time at which the maximum defining $\ml(\vbf)$ is attained, that is $\ml(\vbf) = \min_{i} \norm{T_\vbf v_i}$.
-  For any time $t \in [T_\vbf - \frac{\varepsilon_k}{p}, T_\vbf + \frac{\varepsilon_k}{p}]$, we have that for any $i$,
-  \[ \left| \norm{T_\vbf v_i} - \norm{tv_i} \right| \le \left| T_\vbf v_i - t v_i \right| = \left| T_\vbf - t \right| v_i. \]
-  Thus, 
-  \[ \norm{tv_i} \ge \norm{T_\vbf v_i} - \left| T_\vbf - t \right| v_i \ge \left( \frac{1}{k+1} + \varepsilon_k \right) - \frac{\varepsilon_k}{p} \cdot p = \frac{1}{k+1}. \]
-  This means that $t$ is a witness time for $\vbf$.
-
-  For any $\vbf$, there is an interval of witness times $[T_\vbf - \frac{\varepsilon_k}{p}, T_\vbf + \frac{\varepsilon_k}{p}]$ of width 
-  $\frac{2\varepsilon_k}{p} \ge \frac{1}{L_k p} \ge \frac{1}{lp}$. The grid $\frac{1}{lp}\Z$ necessarily intersects the interval.
-  Therefore, there is a witness time in $\frac{1}{lp}\Z$.
+  Take $\varepsilon_k$ from Lemma~\ref{lem:spectralgap} and fix
+  $L_k = \left\lceil \frac{1}{2\varepsilon_k} \right\rceil$.
+  Let $l\geq L_k$, let $p$ be prime, and let $\vbf\in\Z_{p,1}^k$ be non-tight.
+  Its representatives satisfy $v_i<p$ for every $i$, 
+  so Lemma~\ref{lem:witnessinterval} gives an interval of witness times of width
+  $\frac{2\varepsilon_k}{p} \ge \frac{1}{L_k p} \ge \frac{1}{lp}$.
+  The grid $\frac{1}{lp}\Z$ necessarily intersects the interval,
+  so there is a witness time in $\frac{1}{lp}\Z$.
 \end{proof}
 
-Proposition \ref{prop:lrcimpliestight} affirms that if $LRC$ holds, then all the non-tight speed tuples will be eliminated by lifting with 
+Proposition \ref{prop:lrcimpliestight} affirms that if $LRC(k)$ holds, then all the non-tight speed tuples will be eliminated by lifting with 
 $c = 2$, possibly more than once. It also explains why Rosenfeld's ansatz method works as well as it does.
 
-Additionally, we can also state the proposition for a general speed tuple. 
-\begin{proposition}
-\label{prop:lrcimplies-Lk}
-  For fixed $k\geq1$, $LRC(k)$ holds if and only if 
-  there is a constant $\Lambda_k$ such that for any integer $l \ge \Lambda_k$ and any prime $p$, 
-  every speed tuple $\vbf \in \Z_{p,1}^k$ has a witness time in $\frac{1}{l(k+1)p}\Z$.
-\end{proposition}
-The proof follows directly from Proposition~\ref{prop:lrcimpliestight} and the fact that 
-tight speed tuples of dimension $k$ always have witness time in $\frac{1}{k+1}\Z$.
-
-And with a slight shift in perspective, we can also state an analogous proposition.
+A shift in perspective gives the second reformulation.
 \begin{proposition}
 \label{prop:lrcimplies-pk}
   For fixed $k\ge1$, $LRC(k)$ holds if and only if there is a constant $p_k$ such that for every prime $p > p_k$, every 
-  speed tuple $\vbf \in \Z_{p}^k$ that is not equivalent to a tight speed tuple $\ubf \in \Z_p^k$ has a witness time 
+  speed tuple $\vbf \in \Z_{p,1}^k$ that is not equivalent to a tight speed tuple $\ubf \in \Z_{p,1}^k$ has a witness time 
   in $\frac{1}{p}\Z$.
 \end{proposition}
 \begin{proof}
-  The backward direction is obvious and the case with $k=1$ is vacuous. 
+  The backward direction is obvious and the case when $k=1$ is trivial. 
   For the forward direction, fix $k\geq2$ and assume $LRC(k)$.
-  Take $\varepsilon_k$ from the spectral gap theorem.
-  Since $LRC(k)$ gives $\ml\geq\frac{1}{k+1}$ throughout, $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$.
+  Take $\varepsilon_k$ from Lemma~\ref{lem:spectralgap}.
 
   Let $p_k=\varepsilon_k^{-k}$, $p>p_k$ be prime, and $\vbf\in\Z_{p,1}^k$ be not equivalent to any tight speed tuple $\ubf\in\Z_{p,1}^k$.
   Take $h:=\lfloor p^{1/k}\rfloor$ and partition $[0,p)^k$ into $h^k$ boxes of side $p/h$ in the natural way;
@@ -777,32 +797,25 @@ And with a slight shift in perspective, we can also state an analogous propositi
   we are allowed to replace each coordinate by its absolute value.
   Notice that $\vbf'$ is equivalent to $\vbf$, thus it is non-tight.
 
-  Let $T_{\vbf'}$ be a time where the maximum $\ml(\vbf')$ is attained.
-  Let $\delta:=\frac{\varepsilon_k h}{p}$ and consider $t\in[T_{\vbf'}-\delta,T_{\vbf'}+\delta]$.
-  For any index $i$,
-  \[ \left|\norm{T_{\vbf'}v'_i}-\norm{tv'_i}\right| \leq \left|T_{\vbf'}v'_i-tv'_i\right| = \left|T_{\vbf'}-t\right|v'_i. \]
-  Thus, 
-  \[ \norm{tv'_i} \geq \norm{T_{\vbf'}v'_i} - \left|T_{\vbf'}-t\right|v'_i
-     \geq \left(\frac{1}{k+1}+\varepsilon_k\right)-\delta\cdot\frac{p}{h} = \frac{1}{k+1}. \]
-  This implies that every such $t$ is a witness time.
+  Since $v'_i<\frac{p}{h}$ for every $i$, Lemma~\ref{lem:witnessinterval} applied with $M=\frac{p}{h}$
+  gives an interval of witness times of $\vbf'$ centred at some $T_{\vbf'}$ and of radius $\delta:=\frac{\varepsilon_k h}{p}$.
 
-  As $p > \varepsilon_k^{-k}$, $h > \varepsilon_k^{-1} - 1$.
-  The interval $[T_\vbf - \delta, T_\vbf + \delta]$ of witness time has width 
+  As $p > \varepsilon_k^{-k}$, $h > \varepsilon_k^{-1} - 1$, so this interval has width 
   $2\delta = \frac{2\varepsilon_k h}{p} \ge 2\frac{1 - \varepsilon_k}{p} \ge \frac{1}{p}$. 
-  This implies that the intersection of $[T-\delta, T+\delta]$ and $\frac{1}{p}\Z$ is non-empty, 
+  This implies that the intersection of $[T_{\vbf'}-\delta, T_{\vbf'}+\delta]$ and $\frac{1}{p}\Z$ is non-empty, 
   i.e. there is a witness time of $\vbf'$ in $\frac{1}{p}\Z$.
 
   Finally, since $\vbf$ is equivalent to $\vbf'$, we can deduce that there will also be a witness time of $\vbf$ in $\frac{1}{p}\Z$.
 \end{proof}
 
 Proposition~\ref{prop:lrcimplies-pk} is stronger than Proposition~\ref{prop:lrcimpliestight} in the sense that for large enough prime $p$, 
-every non-tight speed tuples should be immediately refutable without any lifts, and the only lift we need is the one with $c = k+1$ to refute
+every non-tight speed tuple is immediately resolved without any lifts, and the only lift we need is the one with $c = k+1$ to resolve
 the tight speed tuples.
 
-As mentioned above that $\varepsilon_k$ given by \cite{giri_structure_2026} must be less than $\frac{1}{k^2}$, the proposition 
+As Lemma~\ref{lem:spectralgap} forces $\varepsilon_k<\frac{1}{k^2}$, the propositions above 
 will always give $L_k \ge \frac{k^2}{2}$ and $p_k \ge k^{2k}$. Both of these are much larger than what the empirical evidence suggests, 
-which for our $k$, is $L_k \le 8$ and $p_k$ in the hundreds.
-it would be interesting to see how this gap can be closed.
+which, for our $k$, is $L_k \le 8$ and $p_k$ in the hundreds. 
+It would be interesting to see how this gap can be closed.
 
 \section{Concluding remarks}
 \label{sec:conclude}
