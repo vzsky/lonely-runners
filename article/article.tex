@@ -61,18 +61,18 @@
 \maketitle
 
 \section{Introduction}
-The Lonely Runner Conjecture, posed by Wills \cite{Wills} in the 1960s, arose in the study of Diophantine approximation \cite{Wills}. It has been reinterpreted in the context of view obstruction and billiard trajectories 
+The Lonely Runner Conjecture, posed by Wills in his thesis \cite{wills1965zwei} in 1965, arose in the study of Diophantine approximation \cite{Wills}. It has been reinterpreted in the context of view obstruction and billiard trajectories 
 \cite{cusick1984view}, covering radii of zonotopes \cite{henze_covering_2017}, and the chromatic number of a 
 unit-distance graph \cite{zhu2002circular}. 
 Writing $\norm{x}$ for the distance from $x$ to the closest integer, namely $\norm{x}=\min(x-\lfloor x\rfloor, \lceil x\rceil-x)$, 
 the conjecture can be stated as follows:
 
 \begin{conjecture} \label{lonelyconj}
-  Let $u_1,\ldots,u_{k+1}$ be distinct real numbers. For each $i \in\{1,\ldots,k+1\}$, there is a real number $t$ such that
+  Let $u_1,\[118;1:3uldots,u_{k+1}$ be distinct real numbers. For each $i \in\{1,\ldots,k+1\}$, there is a real number $t$ such that
   \[ \norm{t u_i-tu_j} \ge \frac{1}{k+1} \quad \text{for all } j \ne i. \]
 \end{conjecture}
 
-Conjecture \ref{lonelyconj} has a popular interpretation \cite{bienia1998flows} that gives its name: if $k+1$ runners run with distinct,
+Cusick's \cite{bienia1998flows} popular interpretation give the conjecture's name: if $k+1$ runners run with distinct,
 constant speeds around a unit-length track, each of them will be \emph{lonely} at some time. 
 Being lonely means being at least $\tfrac{1}{k+1}$ away from other runners. 
 However, the version most commonly worked with fixes one runner to be stationary. 
@@ -120,7 +120,7 @@ Furthermore, we employ a polynomial method to establish the following propositio
     then $(u_1,\ldots,u_k)$ has the LR property.
 \end{proposition}
 
-Our proof strategy is outlined in the next section. Section \ref{sec:sieves} discusses the intermediate sieves 
+Our proof strategy is outlined in the next section. Section \ref{sec:sieves} explains the intermediate sieves 
 technique and Section \ref{sec:onetok} is devoted to proving Proposition \ref{prop:onetokintro}. 
 We describe the verification algorithms and their implementation in Section \ref{sec:algo}, 
 the results of which establish Theorem \ref{thm:main} in Section \ref{sec:result}.
@@ -130,7 +130,7 @@ Lastly, we discuss in Section~\ref{sec:conclude} how this method may be further 
 We adopt the following notation. We write $aS=\{as:s\in S\}$ for $a\in\R$ and $S\subseteq\R$. 
 The additive group modulo $n$ is denoted $\Z_{n}$, the multiplicative group modulo $n$ is $\Unit{n}$, and 
 \[\Z_{p, l}=\{x\in\Z_{lp}: x\not\equiv0\pmod{p}\}.\]
-There will be numerous occasions where we treat a representative class in $\Z_n$ as an integer, but it should always be clear when this happens.
+There will be numerous occasions where we treat the standard representatives $\{0,1,\ldots,n-1\}$ in $\Z_n$ as integers, but it should always be clear when this happens.
 
 Let $\pi_{m \to n}:\Z_{m} \to \Z_{n}$ denote the natural projection map when $n\mid m$
 and $\pi_n: \Z \to \Z_{n}$ denote the projection modulo $n$ of integers.
@@ -220,7 +220,7 @@ We may also restate Lemma~\ref{lem:divp} in a more usable form for the proof of 
 \end{corollary}
 
 Finally, we require an upper bound on the runners' speeds beyond which the LR property is guaranteed.
-The best such bound at present was obtained by Malikiosis,~Santos,~and~Schymura~\cite{Malikiosis}:
+The best such bound at present was obtained by Malikiosis,~Santos,~and~Schymura~\cite[Theorem 1.1]{Malikiosis}:
 \begin{lemma}[Corollary 3, \cite{Rosenfeld}] \label{lem:proddivB}
     For $k \ge 3$, if $LRC(k-1)$ holds, then any counterexample $\ubf$ to $LRC(k)$ must have
     \[ u_1\cdots u_k < B_k \quad \text{where} \quad B_k := \left( \frac{\binom{k+1}{2}^{k-1}}{k} \right)^k. \]
@@ -621,10 +621,10 @@ which in particular does not contain a $c=11$ or $c=13$ lift.
 
 As $k+1$ is prime, Proposition \ref{prop:corlarge} asserts that $\onetok\notin J(k,p)$ if $p>k^2+k$.
 This is why we only use $p>k^2+k$ for $k\in\{10,12\}$.\footnote{
-  In fact, we can use some primes $p<k^2+k$ if $\rbf_k(\frac{1}{k+1}\Z)\subseteq\rbf_k(\frac{1}{p}\Z)$ 
-  by imitating the proof of Lemma~\ref{lem:resolvep}.
-  This inclusion holds for $p \in \{103, 107, 109\}$ when $k=10$, and $p \in \{149,151\}$ when $k=12$,
-  and we have checked that for these $k,p$, $J(k,p)=\emptyset$.
+  In fact, we can use some primes $p<k^2+k$ if $\rbf_k(\frac{1}{k+1}\Z)\subseteq\rbf_k(\frac{1}{p}\Z)$.
+  We have checked, by imitating the proof of Lemma~\ref{lem:resolvep}, 
+  that this inclusion holds for $p \in \{103, 107, 109\}$ when $k=10$, and $p \in \{149,151\}$ when $k=12$,
+  and for these $k,p$, $J(k,p)=\emptyset$.
 } Therefore, if there are only speed tuples equivalent to $\onetok$ remaining in $S_5$, we can verify the emptiness of $J(k,p)$.
 
 \subsection{Further particulars}
@@ -632,7 +632,6 @@ This is why we only use $p>k^2+k$ for $k\in\{10,12\}$.\footnote{
 We implement the algorithms of Subsection \ref{subsec:algo} in \texttt{C++}. %nice
 Compared to the original implementations of \cite{rosenfeldcode} and \cite{tanupatcode},
 we improve practical performance by refactoring to support parallel execution and by using more memory-efficient data structures.
-The development of our code was assisted by AI-based tools, namely ChatGPT and Claude, but the process was closely supervised and the code was manually verified.
 We also tested our implementation against that of~\cite{tanupatcode} on a number of smaller cases.
 
 In computing $S_1$, we modified the depth-first-search technique developed by \cite{rosenfeldcode} to account for the equivalence relation
@@ -698,9 +697,9 @@ $k$ & \multicolumn{1}{c|}{$P_k$}
 
 \section{Non-tight speed tuples in an ansatz}
 \label{sec:tight}
-Define the maximum loneliness function \[\ml(\vbf)=\sup_{t\in\R}\min_{i\in\{1,\ldots,k\}}\norm{tv_i}.\] 
-Notice that as $\min_{i\in\{1, \ldots, k\}} \norm{tv_i}$ is continuous and periodic, the supremum can be replaced by a maximum.
-Then $LRC(k)$ corresponds to the inequality $\ml(\vbf)\geq\frac{1}{k+1}$ for every $\vbf\in\Z_{>0}^k$. 
+For a speed tuple $\vbf$, define the maximum loneliness function \[\ml(\vbf)=\max_{t\in\R}\min_{i\in\{1,\ldots,k\}}\norm{tv_i}\] 
+%Notice that as $\min_{i\in\{1, \ldots, k\}} \norm{tv_i}$ is continuous and periodic, the supremum can be replaced by a maximum. [Obvious]
+(it is clear that $\max$ can be used in place of $\sup$). Then $LRC(k)$ corresponds to the inequality $\ml(\vbf)\geq\frac{1}{k+1}$ for every $\vbf\in\Z_{>0}^k$. 
 Goddyn and Wong \cite{goddyn2006tight} studied \emph{tight} speed tuples, namely speed tuples where the equality is attained. 
 Indeed, tightness is precisely the condition that necessitates a sieve with $l=k+1$, as described in Remark \ref{rem:tightset}. 
 Luckily for us, tight speed tuples are vanishingly rare, 
@@ -713,109 +712,41 @@ This section provides, morally, a justification for this and a converse to Remar
 An easy continuity argument shows that if $\vbf$ is not tight, 
 then $LRC(k)$ implies that there are $T$ and $\varepsilon>0$ such that every $t\in(T,T+\varepsilon)$ is a witness time for $\vbf$,
 so there is $L$ such that for any $l\geq L$ there is a witness time in $\frac{1}{lp}\Z$. 
-However, we can extend this and argue that there is a universal $L$ for every non-tight $\vbf$ in an ansatz.
+However, it turns out that for $p$ sufficiently large, we can choose $l=1$ to eliminate every non-tight $\vbf$ from an ansatz.
 
-Giri and Kravitz \cite[Theorem 1.4]{giri_structure_2026} proved that the set 
-\[\mathcal{\Tilde{S}}(k)=\{\ml(\vbf):\vbf\in\Z_{>0}^k\}\] contains no upper accumulation point. 
-Assuming $LRC(k)$, this yields the following spectral gap, on which every result in this section rests.
+\begin{conjecture}
+\label{conj:tight}
+    Let $k\geq1$. There exists a constant $p_k$ such that, for any prime $p\geq p_k$, every speed tuple $\vbf\in\Z_{p,1}^k$ not equivalent to a tight speed tuple $\ubf\in\Z_{p,1}^k$ has a witness time in $\frac{1}{p}\Z$.
 
-\begin{lemma}[Spectral gap]
-\label{lem:spectralgap}
-  Let $k\geq1$ and assume $LRC(k)$. There is a constant $0 < \varepsilon_k < \frac{1}{k^2}$ such that
-  \[\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k \quad \text{for every non-tight } \vbf\in\Z_{>0}^k.\]
-\end{lemma}
-\begin{proof}
-  Assuming $LRC(k)$, we have $\ml(\vbf)\geq\frac{1}{k+1}$ for every $\vbf\in\Z_{>0}^k$, 
-  and equality holds precisely at the tight speed tuples, so $\frac{1}{k+1}=\min\mathcal{\Tilde{S}}(k)$. 
-  Since $\mathcal{\Tilde{S}}(k)$ has no upper accumulation point, there is $\varepsilon_k>0$ with 
-  $\mathcal{\Tilde{S}}(k)\cap\left(\frac{1}{k+1},\frac{1}{k+1}+\varepsilon_k\right)=\emptyset$. 
-  Every non-tight $\vbf$ has $\ml(\vbf)>\frac{1}{k+1}$ and hence $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$.
+    Call this statement $LRC^*(k)$.
+\end{conjecture}
 
-  Notice also that $\frac{1}{k}\in\mathcal{\Tilde{S}}(k)$ and so 
-  $\varepsilon_k\le\frac{1}{k}-\frac{1}{k+1}=\frac{1}{k(k+1)}<\frac{1}{k^2}$.
-\end{proof}
-
-\begin{lemma}[Witness interval]
-\label{lem:witnessinterval}
-  Let $k\geq1$, assume $LRC(k)$, and let $\varepsilon_k$ be as in Lemma~\ref{lem:spectralgap}.
-  Let $\vbf\in\Z_{>0}^k$ be non-tight and let $M$ be such that $v_i \le M$ for every $i$.
-  Then there is a time interval of width $2\frac{\varepsilon_k}{M}$ such that any time in the interval is a witness time for $\vbf$.
-\end{lemma}
-\begin{proof}
-  Let $T$ be a time at which the maximum defining $\ml(\vbf)$ is attained,
-  that is $\ml(\vbf)=\min_i\norm{Tv_i}$.
-  For any $t$ with $\left|t-T\right|\leq\frac{\varepsilon_k}{M}$ and any index $i$,
-  \[ \left|\norm{Tv_i}-\norm{tv_i}\right| \leq \left|Tv_i-tv_i\right| = \left|T-t\right|v_i \leq \frac{\varepsilon_k}{M}\cdot M = \varepsilon_k. \]
-  Hence, by Lemma~\ref{lem:spectralgap},
-  \[ \norm{tv_i} \geq \norm{Tv_i}-\varepsilon_k \geq \left(\frac{1}{k+1}+\varepsilon_k\right)-\varepsilon_k = \frac{1}{k+1}. \]
-  As this holds for every $i$, the time $t$ is a witness of $\vbf$.
-\end{proof}
-
-With this gap in hand, we give two equivalent reformulations of $LRC(k)$: 
-the first bounds the lifting depth needed to resolve every non-tight speed tuple, 
-and the second shows that for all large primes no lifting is needed at all.
+The condition that $p$ is prime is necessary to avoid some counterexamples that originate from tight speed tuples. Clearly, Conjecture \ref{conj:tight} is stronger than $LRC(k)$. But perhaps surprisingly, as a consequence of the spectral gap theorem of \cite{giri_structure_2026}, they are indeed equivalent.
 
 \begin{proposition}
 \label{prop:lrcimpliestight}
-  For fixed $k\geq1$, $LRC(k)$ holds if and only if there is a constant $L_k$ such that for any integer $l \ge L_k$ and any prime $p$, 
-  every speed tuple $\vbf \in \Z_{p,1}^k$ that is not a tight speed tuple has a witness time in $\frac{1}{lp} \Z$.
+    $LRC(k)$ is equivalent to $LRC^*(k)$.
 \end{proposition}
 \begin{proof}
-  The backward direction is clear and the case when $k=1$ is trivial.
-  For the forward direction, fix $k\geq2$ and assume $LRC(k)$. 
-  Take $\varepsilon_k$ from Lemma~\ref{lem:spectralgap} and fix
-  $L_k = \left\lceil \frac{1}{2\varepsilon_k} \right\rceil$.
-  Let $l\geq L_k$, let $p$ be prime, and let $\vbf\in\Z_{p,1}^k$ be non-tight.
-  Its representatives satisfy $v_i<p$ for every $i$, 
-  so Lemma~\ref{lem:witnessinterval} gives an interval of witness times of width
-  $\frac{2\varepsilon_k}{p} \ge \frac{1}{L_k p} \ge \frac{1}{lp}$.
-  The grid $\frac{1}{lp}\Z$ necessarily intersects the interval,
-  so there is a witness time in $\frac{1}{lp}\Z$.
+    The backward implication is trivial, and so is the forward when $k=1$. Now assume $k\geq2$ and $LRC(k)$. Giri and Kravitz \cite[Theorem 1.4]{giri_structure_2026} proved that the set \[\mathcal{\Tilde{S}}(k)=\{\ml(\vbf):\vbf\in\Z_{>0}^k\}\] contains no upper accumulation point. Hence, there is a uniform $\varepsilon_k>0$ such that $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$.
+    
+    Let $p_k$ be a large constant to be specified, $p>p_k$ be prime, and $\vbf\in\Z_{p,1}^k$ be not equivalent to any tight speed tuple $\ubf\in\Z_{p,1}^k$. The idea is to transform $\vbf$ using multiplication by $a\in\Unit{p}$ so that $\max\vbf$ is small compared to $p$. Partition $[0,p)^k$ into $h^k$ boxes in the natural way, with $h^k<p\leq(h+1)^k$, so $h>\frac{1}{2}p^{1/k}$ (for $p>2^k$). The set \[\{a\vbf:a\in\Z_p\}\] (reduced modulo $p$) contains $p$ points which are distinct in every entry, meaning for every $i$ \[\{av_i:a\in\Z_p\}=\Z_p.\] By pigeonhole, two of the elements $b\vbf\neq c\vbf$ lie in the same box. In particular, $a\vbf$ where $a=b-c$ lies within $\left((-p/h,p/h)\setminus\{0\}\right)^k$. Change sign in each negative entry of $a\vbf$ and let the result be $\vbf'\in(0,p/h)^k$, so \[\max \vbf'<\frac{p}{h}<2p^{1-1/k}.\] 
+    
+    As $\vbf$ and $\vbf'$ are equivalent in the ansatz, outside the ansatz there is a time $T$ where $ML(\vbf')\geq\frac{1}{k+1}+\varepsilon_k$ is attained. Observe that, since $\norm{\cdot}$ is $1$-Lipschitz, for any time $t$ and index $i$, \[|\norm{tv'_i}-\norm{Tv'_i}|\leq|t-T|v'_i\leq|t-T|(2p^{1-1/k}).\] This gives $\norm{tv_i}\geq\frac{1}{k+1}+\varepsilon_k-|t-T|(2p^{1-1/k})$. Hence, if \[|t-T|<\frac{\varepsilon_k}{2p^{1-1/k}},\] we have that $t$ is a witness time. Since we are able to choose $t\in\frac{1}{p}\Z_p$ such that $|t-T|\leq\frac{1}{2p}$, whenever $\frac{1}{2p}\leq\frac{\varepsilon_k}{2p^{1-1/k}}\iff p\geq\varepsilon_k^{-k}$, there is a witness time $t=\frac{d}{p}$ with $d\in\Z$ for $\vbf'$. This time is also a witness for $a\vbf$, so $t=\frac{a^{-1}d}{p}$ where $a^{-1}$ is the inverse of $a$ modulo $p$ is a witness time for $\vbf$. In particular, we can take $p_k=\varepsilon_k^{-k}$.
 \end{proof}
 
-Proposition \ref{prop:lrcimpliestight} affirms that if $LRC(k)$ holds, then all the non-tight speed tuples will be eliminated by lifting with 
-$c = 2$, possibly more than once. It also explains why Rosenfeld's ansatz method works as well as it does.
+Proposition \ref{prop:lrcimpliestight} explains why the speed tuples behave increasingly nicely as $p$ gets larger: the size of the smallest tuple in each equivalence class as a proportion of $p$ decreases. Still, the constant $p_k$ given by the proof here is enormous. From \cite[Theorem 3.1]{kravitz2021barely}, we have $\frac{s}{ks+1}\in\mathcal{\Tilde{S}}(k)$ for every $s\in\Z_{>0}$, hence the spectral gap can be bounded above by \[\varepsilon_k\leq\frac{2}{2k+1}-\frac{1}{k+1}<\frac{1}{2k^2}.\] By this method we must then choose $p_k =\varepsilon_k^{-k}>2^kk^{2k}$. This is much larger that what the empirical evidence suggests (which is in the hundreds for our $k$); it would be interesting to see how this gap can be closed.
 
-A shift in perspective gives the second reformulation.
-\begin{proposition}
-\label{prop:lrcimplies-pk}
-  For fixed $k\ge1$, $LRC(k)$ holds if and only if there is a constant $p_k$ such that for every prime $p > p_k$, every 
-  speed tuple $\vbf \in \Z_{p,1}^k$ that is not equivalent to a tight speed tuple $\ubf \in \Z_{p,1}^k$ has a witness time 
-  in $\frac{1}{p}\Z$.
-\end{proposition}
+\begin{comment}
+    We obtain as corollary that the lifting depth needed to show eventual properness in an ansatz is uniformly bounded.
+
+\begin{corollary}
+    Let $k\geq1$. $LRC(k)$ is equivalent to the following statement: There is a constant $L_k$ such that, for any integer $l \ge L_k$ and any prime $p$, every non-tight speed tuple $\vbf \in \Z_{p,1}^k$ has a witness time in $\frac{1}{lp} \Z$.
+\end{corollary}
 \begin{proof}
-  The backward direction is obvious and the case when $k=1$ is trivial. 
-  For the forward direction, fix $k\geq2$ and assume $LRC(k)$.
-  Take $\varepsilon_k$ from Lemma~\ref{lem:spectralgap}.
-
-  Let $p_k=\varepsilon_k^{-k}$, $p>p_k$ be prime, and $\vbf\in\Z_{p,1}^k$ be not equivalent to any tight speed tuple $\ubf\in\Z_{p,1}^k$.
-  Take $h:=\lfloor p^{1/k}\rfloor$ and partition $[0,p)^k$ into $h^k$ boxes of side $p/h$ in the natural way;
-  as $p$ is prime and $k \ge 2$, $h^k<p$.
-  Since $\vbf \ne 0$, the set \[\{a\vbf:a\in\Z_p\}\quad(\text{as a set in }\Z_p^k)\] contains $p$ distinct points.
-  Therefore, by the pigeonhole principle, there are distinct $b,c\in\Z_p$ such that $b\vbf$ and $c\vbf$ are in the same box.
-  Write $a:=b-c$, note that $a \ne 0$, let $\vbf'$ be the representative of $a\vbf$ in $(0, p/h)^k$, which exists since 
-  we are allowed to replace each coordinate by its absolute value.
-  Notice that $\vbf'$ is equivalent to $\vbf$, thus it is non-tight.
-
-  Since $v'_i<\frac{p}{h}$ for every $i$, Lemma~\ref{lem:witnessinterval} applied with $M=\frac{p}{h}$
-  gives an interval of witness times of $\vbf'$ centred at some $T_{\vbf'}$ and of radius $\delta:=\frac{\varepsilon_k h}{p}$.
-
-  As $p > \varepsilon_k^{-k}$, $h > \varepsilon_k^{-1} - 1$, so this interval has width 
-  $2\delta = \frac{2\varepsilon_k h}{p} \ge 2\frac{1 - \varepsilon_k}{p} \ge \frac{1}{p}$. 
-  This implies that the intersection of $[T_{\vbf'}-\delta, T_{\vbf'}+\delta]$ and $\frac{1}{p}\Z$ is non-empty, 
-  i.e. there is a witness time of $\vbf'$ in $\frac{1}{p}\Z$.
-
-  Finally, since $\vbf$ is equivalent to $\vbf'$, we can deduce that there will also be a witness time of $\vbf$ in $\frac{1}{p}\Z$.
+    By Proposition \ref{prop:lrcimpliestight}, the $p_k$ in Conjecture \ref{conj:tight} exists. For any $p\leq p_k$, let 
 \end{proof}
-
-Proposition~\ref{prop:lrcimplies-pk} is stronger than Proposition~\ref{prop:lrcimpliestight} in the sense that for large enough prime $p$, 
-every non-tight speed tuple is immediately resolved without any lifts, and the only lift we need is the one with $c = k+1$ to resolve
-the tight speed tuples.
-
-As Lemma~\ref{lem:spectralgap} forces $\varepsilon_k<\frac{1}{k^2}$, the propositions above 
-will always give $L_k \ge \frac{k^2}{2}$ and $p_k \ge k^{2k}$. Both of these are much larger than what the empirical evidence suggests, 
-which, for our $k$, is $L_k \le 8$ and $p_k$ in the hundreds. 
-It would be interesting to see how this gap can be closed.
+\end{comment}
 
 \section{Concluding remarks}
 \label{sec:conclude}
@@ -823,6 +754,9 @@ Proposition \ref{prop:polynomial} brings into picture a finite field reduction o
 
 Looking ahead, from the same heuristic estimate as in Subsection \ref{subsec:particulars}, our algorithm will take $30$ years on our original machine to verify $LRC(13)$. The primary bottleneck here is the efficient computation of $I(k, p, 1)$. Progress then likely requires a better understanding of speed tuples that do not have a witness time in an ansatz, 
 which in turn could yield stronger pruning conditions and make the initial sieve more tractable. 
+
+\section*{AI disclosure}
+The proof of Proposition \ref{prop:lrcimpliestight} was found by ChatGPT-5.6 Sol. ChatGPT-5.3 Instant and Claude Opus 5 were used to assist with code development in \cite{mycode}, but the process was closely supervised and the code was manually verified.
 
 \section*{Acknowledgements}
 The authors are most thankful to Noah Kravitz for his insightful feedback and suggestions, 
@@ -833,3 +767,4 @@ The second author acknowledges the support from the King's Scholarship (Thailand
 \bibliography{ref}
 
 \end{document}
+
