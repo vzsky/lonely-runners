@@ -698,8 +698,7 @@ $k$ & \multicolumn{1}{c|}{$P_k$}
 \section{Non-tight speed tuples in an ansatz}
 \label{sec:tight}
 For a speed tuple $\vbf$, define the maximum loneliness function \[\ml(\vbf)=\max_{t\in\R}\min_{i\in\{1,\ldots,k\}}\norm{tv_i}\] 
-in the same way as \cite{giri_structure_2026} 
-(Notice that as $\min_{i\in\{1, \ldots, k\}} \norm{tv_i}$ is continuous and periodic, the supremum can be replaced by a maximum).
+(as $\min_{i\in\{1, \ldots, k\}} \norm{tv_i}$ is continuous on $\R/\Z$, $\sup$ can be replaced by $\max$).
 Then $LRC(k)$ corresponds to the inequality $\ml(\vbf)\geq\frac{1}{k+1}$ for every $\vbf\in\Z_{>0}^k$. 
 Goddyn and Wong \cite{goddyn2006tight} studied \emph{tight} speed tuples, namely speed tuples where the equality is attained. 
 Indeed, tightness is precisely the condition that necessitates a sieve with $l=k+1$, as described in Remark \ref{rem:tightset}. 
@@ -708,7 +707,7 @@ the only known (and likely only existing) tight speed tuples for $k\in\{10,11,12
 
 Nonetheless, the rarity of tight speed tuples does not explain why non-tight speed tuples can be sieved out so easily 
 (with only three $c=2$ lifts for our prime $k+1$ case). 
-This section provides, morally, a justification for this and describe some behaviors of non-tight sets.
+This section provides, morally, a justification for this.
 
 An easy continuity argument shows that if $\vbf$ is not tight, 
 then $LRC(k)$ implies that there are $T$ and $\varepsilon>0$ such that every $t\in(T,T+\varepsilon)$ is a witness time for $\vbf$,
@@ -717,21 +716,19 @@ However, it turns out that for $p$ sufficiently large, we can choose $l=1$ to el
 
 \begin{proposition}
 \label{prop:lrcimpliestight}
-  For a fixed $k$, $LRC(k)$ holds if and only if 
-  There exists a constant $p_k$ such that, for any prime $p\geq p_k$, 
+  For a fixed $k$, $LRC(k)$ holds if and only if the following holds: There exists a constant $p_k$ such that, for any prime $p\geq p_k$, 
   every speed tuple $\vbf\in\Z_{p,1}^k$ not equivalent to a tight speed tuple $\ubf\in\Z_{p,1}^k$ has a witness time in $\frac{1}{p}\Z$.
 \end{proposition}
 \begin{proof}
   The backward implication is trivial, and so is the forward when $k=1$.
   Now assume $k\geq2$ and $LRC(k)$. 
   Giri and Kravitz \cite[Theorem 1.4]{giri_structure_2026} proved that the set \[\mathcal{\Tilde{S}}(k)=\{\ml(\vbf):\vbf\in\Z_{>0}^k\}\] contains no upper accumulation point. 
-  Hence, there is a uniform $\varepsilon_k>0$ such that $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$.
-  For the sake of completion we note that it is possible to choose $\varepsilon_k < \frac{1}{2}$
+  Hence, there is a uniform $\varepsilon_k>0$ such that $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$. We choose $\varepsilon_k < \frac{1}{2}$.
         
-  Let $p_k = \varepsilon_k^{-k} > 2^k$, $p>p_k$ be prime, and $\vbf\in\Z_{p,1}^k$ be not equivalent to any tight speed tuple $\ubf\in\Z_{p,1}^k$.
+  Let $p_k = \varepsilon_k^{-k}$, $p>p_k$ be prime, and $\vbf\in\Z_{p,1}^k$ be not equivalent to any tight speed tuple $\ubf\in\Z_{p,1}^k$.
   Let $h = \lceil p^{1/k} \rceil - 1$. Since $p > 2^k$, $h > \frac{1}{2} p^{1/k}$ and $1 < h^k < p \ge (h+1)^k$. 
   Partition $[0,p)^k$ into $h^k$ boxes in the natural way, so that the set 
-  \[ \{a\vbf:a\in\Z_p\} \quad \text{(considered modulo $p$)} \] 
+  \[ \{a\vbf \pmod{p}:a\in\Z_p\}\] 
   contains $p$ points which are distinct in every entry, meaning for every $i$, $\{av_i:a\in\Z_p\}=\Z_p$. 
 
   By pigeonhole, two distinct elements $b\vbf, c\vbf$ lie in the same box.
@@ -752,7 +749,7 @@ However, it turns out that for $p$ sufficiently large, we can choose $l=1$ to el
 \end{proof}
 
 Proposition \ref{prop:lrcimpliestight} explains why the speed tuples behave increasingly nicely as $p$ gets larger: 
-the size of the smallest tuple in each equivalence class as a proportion of $p$ decreases. Still, the constant $p_k$ given by the proof here is enormous. 
+the $\norm{\cdot}_\infty$ norm of the smallest tuple in each equivalence class as a proportion of $p$ decreases. Still, the constant $p_k$ given by the proof here is enormous. 
 From \cite[Theorem 3.1]{kravitz2021barely}, we have $\frac{s}{ks+1}\in\mathcal{\Tilde{S}}(k)$ for every $s\in\Z_{>0}$, hence the spectral gap can be bounded above by
 \[\varepsilon_k\leq\frac{2}{2k+1}-\frac{1}{k+1}<\frac{1}{2k^2}.\] 
 By this method we must then choose $p_k =\varepsilon_k^{-k}>2^kk^{2k}$. 
