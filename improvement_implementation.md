@@ -74,3 +74,79 @@ in `improvement_plan.md` must reproduce exactly. The `count` column alone
 already gives a cheap sanity check; the hash catches any change that
 alters *which* solutions are found while accidentally preserving the
 total count.
+
+**Superseded note:** the hashes above come from `validate_find_cover.cpp`,
+which has since been deleted and replaced by `test.cpp` (a different,
+permanent, self-contained oracle with its own canonical dump format —
+its hashes are *not* the same strings as the ones above, only the same
+`(K,P)` cases and `count`s). Every entry from here on validates against
+`test.cpp`'s fixed table (see `improvement_plan.md`'s per-item workflow
+section for those values).
+
+---
+
+## Item 1: attempted, then discarded
+
+Item 1 (irredundant/redundant search decomposition) was implemented,
+revised once to fix a real overlap bug and a 10-22x wall-clock regression,
+and verified correct on 7/8 oracle cases — see this log's git history
+(commit `b652bb9` on branch `Allikvere`) for the full record. It was then
+discarded on this branch (`Allikvere-no-decompose`, reset to `9c14ac6`) by
+request, so `src/find_cover.h` here has none of that code: no `DfsIrred`,
+no `Target` template parameter, no `find_all_irredundant_covers`/
+`find_all_redundant_covers`. Items from here on build on the plain
+`Dfs`/`find_all_covers_parallel` structure only.
+
+---
+
+## Item 2: attempted, then reverted — the bound never fires here
+
+Per the plan: only basegen's `avail.count() < slots` half ports here (not
+v6.4's `need >= slots`, which relies on irredundancy this general search
+doesn't have).
+
+**Change attempted (`src/find_cover.h`):**
+- `AvailableChoice` gained an incrementally-maintained `_availableCount`
+  counter (starts at `P/2`, decremented in `eliminate()`) and a public
+  `availableCount()` accessor.
+- `early_return_bound()` gained an unconditional check at the very top,
+  ahead of the existing `K - 4` gate:
+  `if (state.choice.availableCount() < K - (int)state.elems.size()) return true;`
+
+**Correctness held** (built `test.cpp`, unmodified permanent oracle,
+against this change — all 8 fixed cases byte-identical). A first timing
+pass showed 0-6.6% improvement, which looked plausible but turned out to
+be measurement noise, not this check's effect — the first implementation
+attempt had a bug: `_availableCount` was declared and read, but never
+actually decremented in `eliminate()`, so it silently stayed at `P/2`
+forever. Fixed that, then, before re-measuring, checked the actually
+important question first: does the bound ever fire at all?
+
+**Instrumented directly** (`g_item2_calls`/`g_item2_hits` atomic counters
+around the check, in a scratch copy of the header, not committed) and
+ran 5 cases:
+
+| K | P | node calls | hits | hit rate |
+|---|---|---|---|---|
+| 10 | 127 | 3,155,705 | 0 | 0% |
+| 10 | 199 | 53,928,307 | 0 | 0% |
+| 11 | 131 | 9,675,460 | 0 | 0% |
+| 11 | 199 | 167,992,842 | 0 | 0% |
+| 12 | 139 | 66,947,581 | 0 | 0% |
+
+**Zero hits across ~300M node evaluations.** The bound is correct but
+vacuous for this codebase's problem sizes: `eliminate()` only fires on
+candidates that pass the `cover(i)[nextToCover]` filter (classes covering
+the *rarest* uncovered point), and `get_next_to_cover`'s whole purpose is
+to pick the point with the fewest covering classes — so the number of
+eliminations per level stays small everywhere, `state.choice` gets
+restored after each level's loop, and cumulative eliminations along any
+root-to-node path never approach closing the `P/2` (63-230 for these
+primes) vs. `K` (10-12) gap. `P/2 >> K` here, and the search structure
+itself (MRV branching) keeps it that way at every node, not just at the
+root.
+
+**Decision: reverted.** Correct-but-inert code that costs a small,
+constant per-node overhead for zero pruning benefit isn't worth carrying.
+`src/find_cover.h` is back to its pre-item-2 state (`git checkout --`
+against this branch's own history — no new commit for the attempt).
