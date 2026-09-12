@@ -663,27 +663,42 @@ explicit request naming that item. For the requested item:
 3. **Verify statically**: re-read the diff against this file's own
    description/pseudocode for that item; confirm it matches the stated
    intent and doesn't silently change behavior the item doesn't call for.
-4. **Compile and run** the fixed regression set below, before (baseline)
-   and after (this item's change), and diff the full `SetOfSpeedSets<K>`
-   output (all `Log(...)` lines, timing lines excluded) between the two:
+4. **Compile and run `test.cpp`** (repo root) against the change — this
+   file is the fixed, permanent oracle: it computes `sha256` of a
+   deterministically-sorted text dump of `find_all_covers_parallel<P,K>()`'s
+   output for 8 fixed `(K,P)` cases, entirely self-contained (embeds its
+   own SHA-256, no external tools). **`test.cpp` itself must never be
+   edited again** — it was committed once as ground truth. When verifying
+   an alternative/decomposed implementation meant to be a drop-in
+   replacement for `find_all_covers_parallel` (e.g. item 1's
+   `find_all_irredundant_covers` ∪ `find_all_redundant_covers`), copy
+   `test.cpp`'s `run_case` body into a scratch file, swap in the
+   replacement computation, and confirm every printed `sha256` matches the
+   values below exactly — do not hand-edit or re-derive the reference
+   values themselves.
 
-   | K | Primes | Timeout (per run) |
-   |---|---|---|
-   | 10 | 127, 199, 461 | 180s |
-   | 11 | 131, 199 | 180s |
-   | 12 | 139, 199, 211 | 180s |
+   Fixed reference values (`p = 199` appears for every `K` deliberately —
+   basegen's own long-standing benchmark/instrumentation prime, per the
+   `p==199` special cases throughout `basegen_v5.cpp`/`basegen_v6.cpp`;
+   `461`/`211` were chosen by probing `LrcVerifier<K>`'s prime list to land
+   close to ~2 minutes on the unoptimized baseline — see
+   `improvement_implementation.md` for the probe data):
 
-   (`p = 199` is used at every `K` deliberately — it's basegen's own
-   long-standing benchmark/instrumentation prime, per the `p==199` special
-   cases throughout `basegen_v5.cpp`/`basegen_v6.cpp`; pairing it with the
-   smallest listed prime for each `K` gives one fast sanity check and one
-   moderately-loaded one per run. K=10 and K=12 each additionally carry one
-   larger prime (461 and 211 respectively) chosen by probing candidates
-   from `LrcVerifier<K>`'s prime list to land close to ~2 minutes on the
-   unoptimized baseline — see `improvement_implementation.md`'s baseline
-   entry for the probe data. If a run needs longer than the timeout, that's
-   a signal to pick a smaller prime for routine validation, not to
-   silently raise the timeout.)
+   | K | P | count | sha256 |
+   |---|---|---|---|
+   | 10 | 127 | 8228 | `9ea3c09622858900e02f397a7413663ee6f67c37c8cd365d6cc7f4f9249e994c` |
+   | 10 | 199 | 4417 | `10964f848c825ad6d52903c8d7c6056c3aa5afe241d1411d718e3831053ff7e8` |
+   | 10 | 461 | 1 | `d309dd5f6192e467dd90935144f4eac4f89445ea2b019f65d9437e877ba88c1e` |
+   | 11 | 131 | 40615 | `b5b3ec828226e19c517afbd659aa5a399c32ee6f14cbb459b8e2228aa8376673` |
+   | 11 | 199 | 18516 | `3e7c5ffc251b4f330c4f87f66a0e7b562f431f345cd7a6124ec62b4086d78679` |
+   | 12 | 139 | 641960 | `37da0b2667c68035669af9dd15bb788812a42632b4e07c2435b2c0b8fbf6fffe` |
+   | 12 | 199 | 494183 | `da84151e5b6998af2d6ae3147cf04d51ed173f5cf25e7f6fc322cd07b0799ea4` |
+   | 12 | 211 | 426537 | `4db6f3c04be25e9893bcc5e1e8c8dabdd69fbc3d1db155d3d0b25b19d3fa3c6a` |
+
+   Generated from a clean checkout at commit `57ff576` (no
+   `improvement_plan.md` optimization items applied). Timeout: 180s/case;
+   if a run needs longer, that's a signal to pick a smaller prime for
+   routine validation, not to silently raise the timeout.
 
 5. **If outputs mismatch**: the change is wrong — debug and fix before
    doing anything else in steps 6+. Do not proceed on a known mismatch.
