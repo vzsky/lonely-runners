@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <atomic>
-#include <bitset>
 #include <cassert>
 #include <climits>
 #include <cstdint>
@@ -14,6 +13,7 @@
 #include <utility>
 #include <vector>
 
+#include "bitset.h"
 #include "speedset.h"
 #include "utils.h"
 
@@ -22,7 +22,7 @@ namespace find_cover
 
 template <int P, int K> struct Context
 {
-  using CoveredBitset = std::bitset<P / 2>;
+  using CoveredBitset = Bitset<P / 2>;
   using CovArray      = std::array<CoveredBitset, P / 2>;
 
   Context()
