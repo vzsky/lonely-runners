@@ -76,7 +76,7 @@ However, the version most commonly worked with fixes one runner to be stationary
 Additionally, it was shown in \cite{Bohman,henze_covering_2017} (and implicit in \cite{wills1968simultanen,fourrunners}) that only positive integer speeds need to be considered. Hence, Conjecture \ref{lonelyconj} is reduced
 to a simpler Conjecture~\ref{lonelyconjred}:
 
-A tuple $(u_1, \dots, u_k)$ is said to have the \emph{LR property} if there is a real number $t$ such that 
+A tuple $(u_1, \dots, u_k)$ is said to have the \emph{L[118;1:3uR property} if there is a real number $t$ such that 
 \[\norm{tu_i}\geq\frac{1}{k+1} \quad \text{for all } i = 1,\dots,k.\]
 Such a time $t$ where the inequalities hold is called a \emph{witness} of the LR property of $(u_1, \dots,u_k)$.
 
@@ -109,7 +109,7 @@ The main objective of this paper is to prove $LRC(k)$ for $k\in\{10,11,12\}$.
 In order to carry out the proof, we improve upon the framework of \cite{Rosenfeld} and \cite{Trakulthongchai}
 both mathematically and computationally. We refine the sieving scheme by adding intermediate sieves and exploit a modulo
 $p$ symmetry during implementation to reduce the verification necessary. These were enough to prove $k=11$. 
-Furthermore, we employ a polynomial method to establish the following proposition that aids the proof for $k\in\{10,12\}$.
+Furthermore, we employ the polynomial method to establish the following proposition that aids the proof for $k\in\{10,12\}$.
 \begin{proposition} \label{prop:onetokintro}
     Let $k+1$ and $p > k^2 + k$ be odd primes and $(u_1,\ldots,u_k)\in\Z_{>0}^k$.
     If $\gcd(u_1,\ldots,u_k)=1$ and 
@@ -121,8 +121,7 @@ Our proof strategy is outlined in the next section. Section \ref{sec:sieves} exp
 technique and Section \ref{sec:onetok} is devoted to proving Proposition \ref{prop:onetokintro}. 
 We describe the verification algorithms and their implementation in Section \ref{sec:algo}, 
 the results of which establish Theorem \ref{thm:main} in Section \ref{sec:result}.
-Section~\ref{sec:tight} discusses tight speed tuples and gives supporting reasons why the sieves are effective.
-Lastly, we discuss in Section~\ref{sec:conclude} how this method may be further extended.
+Lastly, we discuss in Section~\ref{sec:conclude} some reasons why the sieves are effective and how the method in this paper may be further extended.
 
 We adopt the following notation. We write $aS=\{as:s\in S\}$ for $a\in\R$ and $S\subseteq\R$. 
 The additive group modulo $n$ is denoted $\Z_{n}$, the multiplicative group modulo $n$ is $\Unit{n}$, and 
@@ -219,7 +218,7 @@ We may also restate Lemma~\ref{lem:divp} in a more usable form for the proof of 
 Finally, we require an upper bound on the runners' speeds beyond which the LR property is guaranteed.
 The best such bound at present was obtained by Malikiosis,~Santos,~and~Schymura~\cite[Theorem 1.1]{Malikiosis}:
 \begin{lemma}[Corollary 3, \cite{Rosenfeld}] \label{lem:proddivB}
-    For $k \ge 3$, if $LRC(k-1)$ holds, then any counterexample $\ubf$ to $LRC(k)$ must have
+    For $k \ge 3$, if $LRC(k-1)$ holds, then any counterexample $\ubf$ with $\gcd(u_1,\ldots,u_k)=1$ to $LRC(k)$ must have
     \[ u_1\cdots u_k < B_k \quad \text{where} \quad B_k := \left( \frac{\binom{k+1}{2}^{k-1}}{k} \right)^k. \]
 \end{lemma}
 
@@ -237,7 +236,7 @@ which will be used to conclude the main theorem.
   then $LRC(k)$ is true.
 \end{proposition}
 \begin{proof}
-    Assume that there exists a counterexample $\ubf$ to $LRC(k)$. 
+    Suppose that there exists a counterexample $\ubf$ to $LRC(k)$, which we may assume to have $\gcd(\ubf)=1$. 
     By Corollary \ref{cor:evenpropdivp}, $\prod_{p\in P}p$ divides $u_1\cdots u_k$ and so 
     \[u_1\cdots u_k\geq \prod_{p \in P} p\geq B_k>u_1\cdots u_k,\] 
     where the last inequality comes from Lemma \ref{lem:proddivB}. 
@@ -313,7 +312,7 @@ Empirically, $|S|$ is found to be smaller as we lift\footnote{
   it seems that the increased precision of the allowed time in the lifted ansatz has a greater effect \cite{Trakulthongchai}.
 }. Thus, we should take $c$ to be small at first. 
 
-O[101;1:3ubserve that lifting a set $S$ of tuples with a multiplier $c$ requires checking at most
+Observe that lifting a set $S$ of tuples with a multiplier $c$ requires checking at most
 \[ \left| \pi^{-1}_{clp \to lp} S \right| = c^k\cdot|S| \]
 speed tuples.
 Furthermore, as $k$ gets larger, the value of $c$ has a greater effect on the computational time, 
@@ -343,9 +342,8 @@ we are bound to miss eliminating some speed tuples.
 Although this can be remedied, to streamline the proof we choose not to do projection for $k=11$. 
 
 We remark that this strategy can be extended to the following:
-lift with $c=2$ successively and project back, then lift with $c=3$ successively and project back, and so on.
-This extension is unnecessary for our present goal, and as shown in Section~\ref{sec:tight}, lifting with $c>2$ is 
-never necessary, unless $c \mid k+1$.
+lift with $c=2$ successively and project back, then lift with $c=3$ successively and project back, and so on;
+this extension is unnecessary for our present goal.
 
 \section{Eventual properness of
   \texorpdfstring{$(1, 2,\ldots, k)$}{(1, 2, ..., k)}
@@ -630,7 +628,9 @@ This is why we only use $p>k^2+k$ for $k\in\{10,12\}$.\footnote{
 \label{subsec:particulars}
 We implement the algorithms of Subsection \ref{subsec:algo} in \texttt{C++}.
 Compared to the original implementations of \cite{rosenfeldcode} and \cite{tanupatcode},
-we improve practical performance by refactoring to support parallel execution and by using more memory-efficient data structures.
+we improve practical performance by refactoring to support parallel execution and by using more memory-efficient data structures. The
+development of our code was assisted by AI-based tools, but the process was closely supervised
+and the code was manually verified. 
 We also tested our implementation against that of~\cite{tanupatcode} on a number of smaller cases.
 
 In computing $S_1$, we modified the depth-first-search technique developed by \cite{rosenfeldcode} to account for the equivalence relation
@@ -699,32 +699,9 @@ $k$ & \multicolumn{1}{c|}{$P_k$}
 \label{tab:primes}
 \end{table}
 
-\section{Non-tight speed tuples in an ansatz}
-\label{sec:tight}
-For a speed tuple $\vbf$, define the maximum loneliness function \[\ml(\vbf)=\sup_{t\in\R}\min_{i\in\{1,\ldots,k\}}\norm{tv_i}\] 
-(as $\min_{i\in\{1, \ldots, k\}} \norm{tv_i}$ is continuous on $\R/\Z$, $\sup$ can be replaced by $\max$).
-Then $LRC(k)$ corresponds to the inequality $\ml(\vbf)\geq\frac{1}{k+1}$ for every $\vbf\in\Z_{>0}^k$. 
-Goddyn and Wong \cite{goddyn2006tight} studied \emph{tight} speed tuples, namely speed tuples where the equality is attained. 
-Indeed, tightness is precisely the condition that necessitates a sieve with $l=k+1$, as described in Remark \ref{rem:tightset}. 
-Luckily for us, tight speed tuples are vanishingly rare, 
-the only known (and likely only existing) tight speed tuples for $k\in\{10,11,12\}$ being $\onetok$.
 
-Nonetheless, the rarity of tight speed tuples does not explain why non-tight speed tuples can be sieved out so easily 
-(with only three $c=2$ lifts for our prime $k+1$ case). 
-This section provides, morally, a justification for this.
-
-An easy continuity argument shows that if $\vbf$ is not tight, 
-then $LRC(k)$ implies that there are $T$ and $\varepsilon>0$ such that every $t\in(T,T+\varepsilon)$ is a witness time for $\vbf$,
-so there is $L$ such that for any $l\geq L$ there is a witness time in $\frac{1}{lp}\Z$. 
-However, it turns out that for $p$ sufficiently large, we can choose $l=1$ to eliminate every non-tight $\vbf$ from an ansatz.
-
-\begin{proposition}
-\label{prop:lrcimpliestight}
-  For a fixed $k$, $LRC(k)$ holds if and only if the following holds: There exists a constant $p_k$ such that, for any prime $p\geq p_k$, 
-  every speed tuple $\vbf\in\Z_{p,1}^k$ not equivalent to a tight speed tuple $\ubf\in\Z_{p,1}^k$ has a witness time in $\frac{1}{p}\Z$.
-\end{proposition}
-\begin{proof}
-  The backward implication is trivial, and so is the forward when $k=1$.
+\begin{comment}
+    The backward implication is trivial, and so is the forward when $k=1$.
   Now assume $k\geq2$ and $LRC(k)$. 
   Giri and Kravitz \cite[Theorem 1.4]{giri_structure_2026} proved that the set \[\mathcal{\Tilde{S}}(k)=\{\ml(\vbf):\vbf\in\Z_{>0}^k\}\] contains no upper accumulation point. 
   Hence, there is a uniform $\varepsilon_k>0$ such that $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$. We choose $\varepsilon_k < \frac{1}{2}$.
@@ -749,18 +726,44 @@ However, it turns out that for $p$ sufficiently large, we can choose $l=1$ to el
   Since we are able to choose $t\in\frac{1}{p}\Z$ such that $|t-T|\leq\frac{1}{2p}$, 
   whenever $\frac{1}{2p}\leq\frac{\varepsilon_k}{2p^{1-1/k}}\iff p\geq\varepsilon_k^{-k}$, 
   there is a witness time $t=\frac{d}{p}$ with $d\in\Z$ for $\vbf'$. 
-  This time is also a witness for $a\vbf$, so $t=\frac{ad}{p}$ is a witness time for $\vbf$. 
-\end{proof}
-
-Proposition \ref{prop:lrcimpliestight} explains why the speed tuples behave increasingly nicely as $p$ gets larger: 
-the $\norm{\cdot}_\infty$ norm of the smallest tuple in each equivalence class as a proportion of $p$ decreases. Still, the constant $p_k$ given by the proof here is enormous. 
-From \cite[Theorem 3.1]{kravitz2021barely}, we have $\frac{s}{ks+1}\in\mathcal{\Tilde{S}}(k)$ for every $s\in\Z_{>0}$, hence the spectral gap can be bounded above by
-\[\varepsilon_k\leq\frac{2}{2k+1}-\frac{1}{k+1}<\frac{1}{2k^2}.\] 
-By this method we must then choose $p_k =\varepsilon_k^{-k}>2^kk^{2k}$. 
-This is much larger than what the empirical evidence suggests (which is in the hundreds for our $k$); it would be interesting to see how this gap can be closed.
+  This time is also a witness for $a\vbf$, so $t=\frac{ad}{p}$ is a witness time for $\vbf$.
+\end{comment}
 
 \section{Concluding remarks}
 \label{sec:conclude}
+\subsection{Non-tight speed tuples in an ansatz}
+For a speed tuple $\vbf$, define the maximum loneliness function \[\ml(\vbf)=\sup_{t\in\R}\min_{i\in\{1,\ldots,k\}}\norm{tv_i}\] 
+(as $\min_{i\in\{1, \ldots, k\}} \norm{tv_i}$ is continuous on $\R/\Z$, $\sup$ can be replaced by $\max$).
+Then $LRC(k)$ corresponds to the inequality $\ml(\vbf)\geq\frac{1}{k+1}$ for every $\vbf\in\Z_{>0}^k$. 
+Goddyn and Wong \cite{goddyn2006tight} studied \emph{tight} speed tuples, namely speed tuples where the equality is attained. 
+Indeed, tightness is precisely the condition that necessitates a sieve with $l=k+1$, as described in Remark \ref{rem:tightset}. 
+Luckily for us, tight speed tuples are vanishingly rare, 
+the only known (and likely only existing) tight speed tuples for $k\in\{10,11,12\}$ being $\onetok$.
+
+Nonetheless, the rarity of tight speed tuples does not explain why non-tight speed tuples can be sieved out so easily 
+(with only three $c=2$ lifts for our prime $k+1$ case). We have the following heuristic explanation.
+
+An easy continuity argument shows that if $\vbf$ is not tight, 
+then $LRC(k)$ implies that there are $T$ and $\varepsilon>0$ such that every $t\in(T,T+\varepsilon)$ is a witness time for $\vbf$,
+so there is $L$ (depending on $\vbf$) such that for any $l\geq L$ there is a witness time in $\frac{1}{lp}\Z$. 
+In fact, it turns out that for $p$ sufficiently large, we can choose $l=1$ to eliminate every non-tight $\vbf$ from an ansatz.
+
+\begin{proposition}
+\label{prop:lrcimpliestight}
+  For a fixed $k$, $LRC(k)$ holds if and only if the following holds: There exists a constant $p_k$ such that, for each prime $p\geq p_k$, 
+  every speed tuple $\vbf\in\Z_{p,1}^k$ not equivalent to a tight speed tuple $\ubf\in\Z_{p,1}^k$ has a witness time in $\frac{1}{p}\Z$.
+\end{proposition}
+\begin{proof}[Proof sketch (from ChatGPT-5.6 Pro)]
+    Assume $k\geq2$ and $LRC(k)$. There is a uniform $\varepsilon_k>0$ such that $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$ \cite[Theorem 1.4]{giri_structure_2026}. For any $\vbf\in\Z_{p,1}^k$, by a standard pigeonhole argument we can find $\ubf\in\Z_{p,1}^k$ equivalent to $\vbf$ with $\max(\ubf)\leq O(p^{1-1/k})$. If $\ubf$ is not tight, there is a witness time interval of length $\Omega(\frac{2\varepsilon_k}{p^{1-1/k}})$ which is certainly larger that $\frac{1}{p}$ when $p$ is large, so there is a witness time in $\frac{1}{p}\Z_p$. By equivalence $\vbf$ also has a witness time in $\frac{1}{p}\Z_p$.
+\end{proof}
+The speed tuples behave increasingly nicely as $p$ gets larger because 
+the $\norm{\cdot}_\infty$ norm of the smallest tuple in each equivalence class as a proportion of $p$ decreases. Still, the constant $p_k$ given by the proof here is enormous. 
+From \cite[Theorem 3.1]{kravitz2021barely}, we have $\frac{s}{ks+1}\in\mathcal{\Tilde{S}}(k)$ for every $s\in\Z_{>0}$, hence
+\[\varepsilon_k\leq\frac{2}{2k+1}-\frac{1}{k+1}<\frac{1}{2k^2}.\] 
+By this method we must then choose $p_k\approx(2\varepsilon_k)^{-k}>k^{2k}$.\footnote{The similarity between this linear-exponential form and the one in \cite[Theorem A]{Malikiosis} is no coincidence. Both arise from a gap of order $k^{-2}$ and a pigeonhole argument in $k+O(1)$ dimension.} 
+This is much larger than what the empirical evidence suggests (which is in the hundreds for our $k$); it would be interesting to see how this gap can be closed.
+
+\subsection{Next cases}
 Proposition \ref{prop:polynomial} brings into picture a finite field reduction of some cases of the conjecture. 
 The algebraic method there may be generalizable to verify Conjecture \ref{lonelyconjred} for other classes of speed tuples. 
 This method is particularly useful when the speeds are small, so improving this could be complementary to the analytic methods that are powerful when the speeds are large.
@@ -770,9 +773,11 @@ The primary bottleneck here is the efficient computation of $I(k, p, 1)$.
 Progress then likely requires a better understanding of speed tuples that do not have a witness time in an ansatz, 
 which in turn could yield stronger pruning conditions and make the initial sieve more tractable. 
 
+\begin{comment}
 \section*{AI disclosure}
 The proof of Proposition \ref{prop:lrcimpliestight} was found by ChatGPT-5.6 Sol. ChatGPT-5.3 Instant was used to assist with code development in \cite{mycode}, 
 but the process was closely supervised and the code was manually verified.
+\end{comment}
 
 \section*{Acknowledgements}
 The authors are most thankful to Noah Kravitz for his insightful feedback and suggestions, 
