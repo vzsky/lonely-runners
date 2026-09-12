@@ -53,6 +53,23 @@ introduced it.
   (`IrState`, ~1.4KB) is copied wholesale (`IrState ns = state;`) before
   every child attempt so it can be discarded on backtrack. (This is the
   thing v6.1 later replaces with an undo-log.)
+- **The irredundant/redundant search decomposition** (`run_decomposed`,
+  cross-validated against the brute-force `run_direct` via `mode=both`):
+  instead of one general DFS searching all 13-covers together, basegen
+  splits into (a) `enumerate_irredundant13()` — a dedicated DFS
+  (`dfs_irred`) that tracks a private/unique point per class throughout
+  (`IrState`/`add_irred`) and only accepts covers where every class is
+  essential, and (b) `enumerate_12covers()` + `reducible_from_12()` —
+  enumerate all *complete* covers using at most 12 coordinate slots (via
+  `compositions_rec`, which distributes 12 coordinate slots across a
+  possibly-smaller support set using multiplicities), then extend each by
+  exactly **one** more coordinate to reach 13. Every 13-cover is either
+  irredundant (case a) or has a droppable class, in which case dropping it
+  (and folding any resulting multiplicity) yields a complete cover of
+  **exactly** 12 coordinate slots (case b) — this dichotomy is exhaustive,
+  so the union of (a) and (b) is the full answer, and it's cheaper because
+  (a) prunes far harder than the general bound and (b) searches a strictly
+  smaller (12-slot) problem instead of the full 13-slot one.
 - All of the above already use `Bits` throughout (`covered`, `avail`,
   `unc`, `choices` are all `Bits`), but iteration over them is done by
   **testing every index** (`for(int t=0;t<n;t++) if(X.test(t))`), not by
@@ -112,7 +129,10 @@ comments)
   branch is dead — checked before the (more expensive) `gain_bound`. This
   also let v6 delete v4/v5's old "full-cover fill" branch (a special case
   for when coverage was already complete but slots remained) — it's
-  provably dead code once this check exists.
+  provably dead code once this check exists **inside `dfs_irred`**. (Note:
+  this bound is specific to the irredundant search path — `dfs_support`,
+  basegen's general/non-irredundant search, keeps its own "fill" branch,
+  since redundant completions are exactly what it's meant to find.)
 
 ### v6 proper (capacity widening — not portable, listed only for completeness)
 
@@ -126,25 +146,34 @@ comments)
 
 ## Part 2 — Porting plan for `src/find_cover.h`
 
-Ordered by the actual dependency graph (what genuinely blocks what),
-using impact as the tiebreak wherever nothing forces a particular order.
-Concretely:
+Item 1 (the search decomposition) is placed first by explicit choice, not
+because the dependency graph forces it there — it doesn't depend on, and
+isn't depended on by, items 2-11 (those are all constant-factor/pruning
+work on the *existing* single-DFS structure; item 1 changes what gets
+searched in the first place). Doing it first avoids re-validating all the
+constant-factor items twice — once against the current single-DFS shape,
+again after a later restructuring.
 
-- **#1** has zero dependencies and is nearly free — do it before anything else.
-- **#2-#5** are infrastructure (`Bits` type, `cand` table, word-scan,
-  restricted candidate iteration) that #6-#9 need in order to be fast;
-  #2 must come before #3 (the table needs the bitset type), #4 needs #2,
-  #5 needs #2+#3.
-- **#6** (the tightened bound) only needs #2+#4 — it doesn't need children
+Items 2-11 are ordered by the actual dependency graph (what genuinely
+blocks what), using impact as the tiebreak wherever nothing forces a
+particular order:
+
+- **#2** has zero dependencies and is nearly free — do it before any of
+  the constant-factor items.
+- **#3-#6** are infrastructure (`Bits` type, `cand` table, word-scan,
+  restricted candidate iteration) that #7-#10 need in order to be fast;
+  #3 must come before #4 (the table needs the bitset type), #5 needs #3,
+  #6 needs #3+#4.
+- **#7** (the tightened bound) only needs #3+#5 — it doesn't need children
   sorted, and it prunes whole subtrees regardless of child visit order —
-  so it can land before #7 despite #7 being numerically "smaller."
-- **#7** (gain-sorted children) exists specifically to enable **#8** (the
-  cutoff); there's no reason to do it before #6, which delivers its (much
+  so it can land before #8 despite #8 being numerically "smaller."
+- **#8** (gain-sorted children) exists specifically to enable **#9** (the
+  cutoff); there's no reason to do it before #7, which delivers its (much
   larger) win independently.
-- **#9** (exact slots==2 finish) only depends on #3+#4 (+ benefits from
-  #6) — **not** on #10. It has *larger* impact than #10, so it's ordered
+- **#10** (exact slots==2 finish) only depends on #4+#5 (+ benefits from
+  #7) — **not** on #11. It has *larger* impact than #11, so it's ordered
   before it, not after.
-- **#10** (undo-log) depends only on #2, and nothing later depends on it.
+- **#11** (undo-log) depends only on #3, and nothing later depends on it.
   Since it's the lowest-impact item with no downstream dependents, it's
   correctly last — not because it's "invasive," but because nothing is
   gated on it and everything with a bigger payoff can land first.
@@ -155,25 +184,127 @@ Current relevant code (line numbers as of this writing):
 - `early_return_bound()`: `find_cover.h:100-123`
 - `AvailableChoice`: `find_cover.h:196-234`
 
-### 1. Necessary-condition short-circuits
+### 1. Irredundant/reducible search decomposition
 
-**Origin:** v4/v5 (`avail.count() < slots`) + v6/"v6.4" (`need >= slots`).
+**Origin:** v4/v5's overall search architecture (`run_decomposed` vs.
+`run_direct`, `enumerate_irredundant13`, `enumerate_12covers` +
+`reducible_from_12`) — this is the biggest, structurally different item
+on the list, and the one with the most open design work.
+**Impact:** Uncertain / potentially large for the irredundant half;
+**basegen's specific cheap trick for the redundant half does not directly
+transfer** (see below) — needs design work before its impact can be
+estimated honestly.
+**Effort:** High. **Depends on:** nothing (operates at the
+`find_all_covers_parallel`/`Dfs` level, independent of items 2-11's
+internals — though it will want *some* pruning to be worth doing well,
+so revisiting after a few of 2-11 land is also reasonable; see note at
+the end).
+
+**What basegen actually does, and why it's fast:** a 13-cover is either
+*irredundant* (every one of its classes has a private point — remove any
+one and coverage breaks) or it has at least one *redundant* class (remove
+it and the rest still cover everything). This split is exhaustive.
+Basegen searches each half separately and unions the results:
+- **Irredundant half** (`enumerate_irredundant13` → `dfs_irred`): a
+  dedicated search that tracks, via `IrState`, whether every selected
+  class still has a private point, pruning far harder than the general
+  bound (this is where v6.2's exact slots==2 finish and v6.4's
+  `need >= slots` check live — both *specific to* irredundant search).
+- **Redundant half** (`enumerate_12covers` + `reducible_from_12`): rather
+  than searching size-13 covers with a redundant class directly, basegen
+  searches for complete covers using **at most 12 coordinate slots**
+  (support size 1-12, with `compositions_rec` distributing repeats/
+  multiplicities across a smaller support so the coordinate count is
+  always exactly 12 regardless of support size), then extends each by
+  **exactly one** more coordinate to reach 13. This is cheap specifically
+  *because* the coordinate count is fixed at 12 — multiplicities absorb
+  the gap between "how many distinct classes were used" and "how many
+  coordinate slots that fills."
+
+**Why the redundant half doesn't port as-is:** `find_cover.h`'s
+`SpeedSet<K>` has **no multiplicity concept** — `Dfs::run` always picks
+exactly `K` *distinct* classes (enforced by `AvailableChoice` elimination;
+see `find_cover.h:79-94`). There is no "coordinate count" separate from
+"number of distinct classes chosen." So a redundant `K`-cover here can
+have a minimal complete sub-cover of *any* size `s` from 1 to `K-1` — it
+might need `K-1` more picks padded on (if `s=1`), not always exactly 1
+like basegen's fixed-at-12-coordinates trick guarantees. A literal port
+(`enumerate (K-1)-covers, extend by +1`) would be **wrong** — it would
+miss every redundant cover whose minimal sub-cover has fewer than `K-1`
+distinct classes.
+
+The natural generalization — search every support size `s = 1..K-1` for
+complete covers, then combinatorially choose `K-s` *more* distinct classes
+from what's left to pad each one out to exactly `K` — is not obviously a
+net win: that padding step is a real `C(remaining, K-s)`-sized
+combinatorial expansion, not O(1) like basegen's "+1 coordinate," and
+could dominate cost for small `s`. Whether it's cheaper than today's
+single general search is an open question that needs to be measured, not
+assumed.
+
+**Recommended path, in order of confidence:**
+1. **Build the irredundant-only search first, as an addition, not a
+   replacement.** Add a `find_all_irredundant_covers<P,K>()` alongside the
+   existing `find_all_covers_parallel<P,K>()`, using `Dfs` extended with
+   private-point tracking (mirroring `IrState`/`add_irred`, or the
+   simpler `add_irred_logged`/`undo_irred` form if item 11's undo-log
+   infra already exists). This part *does* transfer cleanly (irredundancy
+   is defined purely in terms of the chosen distinct-class set, no
+   multiplicity machinery involved) and should give a real, measurable
+   speedup for the irredundant subset on its own — validate this in
+   isolation (compare against filtering the existing full output for
+   irredundant covers) before touching anything else.
+2. **Only then** decide what to do about the redundant half: either (a)
+   keep using the general search (now cheaper thanks to items 2-11 and
+   able to skip re-deriving irredundant covers if the irredundant pass's
+   results are subtracted/excluded via some cheap marker), or (b)
+   prototype the "search every support size `s`, pad combinatorially"
+   generalization above and *measure* whether it beats (a) — don't assume
+   it will just because basegen's version wins there; basegen's win
+   specifically depends on the multiplicity trick this codebase doesn't
+   have.
+3. Given the uncertainty in step 2, and that step 1 alone is already a
+   nontrivial, independently-valuable change, treat this item as **two
+   sub-items in practice** when it's actually implemented: land the
+   irredundant-only search and its validation first, then treat the
+   redundant-half question as its own follow-up decision (possibly "keep
+   the current general search, it's fine") rather than a single monolithic
+   change.
+
+### 2. Necessary-condition short-circuit
+
+**Origin:** v4/v5 (`avail.count() < slots`).
 **Impact:** Small-Medium.
-**Effort:** Trivial. **Depends on:** nothing — these are guard clauses on
-values `Dfs::run`/`early_return_bound` already compute (or can compute
-with the current `char`-array `AvailableChoice`, no infra needed). Do
-this first: it's a same-day change with no prerequisites.
+**Effort:** Trivial. **Depends on:** nothing.
 
-Add, before the existing (or new, item 6) bound computation:
-- `if (K - state.elems.size() > totalToCover) return;` — can't have more
-  remaining slots than uncovered points needing a distinct contribution
-  (mirrors basegen's `need >= slots`).
-- `if (state.choice.remaining_avail_count() < K - state.elems.size()) return;`
-  (or an O(n) count over `_eliminated` today, O(1) once item 2's `Bits
-  avail` exists) — not enough candidate classes left to fill the
-  remaining slots (mirrors basegen's `avail.count() < slots`).
+**Correction (found during a prior implementation attempt of this item):**
+basegen's `need >= slots` check (v6/"v6.4") does **not** port here. That
+bound relies on **irredundancy** — in basegen's `dfs_irred`, every
+remaining class must end with a private point, so fewer uncovered points
+than remaining slots is a contradiction. `find_cover.h`'s *general* search
+(`find_all_covers_parallel`/`Dfs::run`, as it exists today) has no such
+requirement: its only leaf condition is `state.covered.count() == bitlen`
+at exactly `K` elements (`find_cover.h:67-71`), and when coverage
+completes early, `run()`'s loop condition `nextToCover == -1 || ...`
+(`find_cover.h:82`) deliberately lets *any* remaining available class pad
+out the rest of the `K` picks — redundant (fully-overlapping) picks are
+legal, currently-working completions here. Applying `need >= slots` to
+this general search would silently drop valid solutions. **Only the
+`avail.count() < slots` half is ported** — that one holds regardless of
+irredundancy (you always need `slots` more *distinct* classes, full
+stop). (If/when item 1's dedicated irredundant search is built, *that*
+search — being genuinely irredundancy-constrained — is exactly where
+`need >= slots` would legitimately apply, same as it does in basegen's
+`dfs_irred`.)
 
-### 2. Custom `Bits` type + represent class-availability as a bitset (not a char array)
+Add, before the existing (or new, item 7) bound computation — cheapest as
+an unconditional check inside `early_return_bound`, ahead of the
+`elems.size() >= K - 4` gate, since it's O(1) and should run every node:
+`if (state.choice.availableCount() < K - state.elems.size()) return true;`
+(new `availableCount()` accessor on `AvailableChoice`, backed by an
+incrementally-maintained counter — see implementation below).
+
+### 3. Custom `Bits` type + represent class-availability as a bitset (not a char array)
 
 **Origin:** v4/v5's `Bits` type and its `avail` parameter, which is always
 a `Bits`, never a per-index array.
@@ -214,14 +345,14 @@ Use `Bits<P/2>` in place of `CoveredBitset` (drop-in — same semantics as
 `std::bitset` for `set`/`test`/`count`/`&`/`|`/`~`), and add a second
 `Bits<P/2> avail` field to `AvailableChoice` that gets a bit `reset` when a
 class is eliminated, replacing `_eliminated`. Keep `_remaining` (see item
-4's note — it's not a basegen idea, but it's already a legitimate
+5's note — it's not a basegen idea, but it's already a legitimate
 optimization find_cover.h has that basegen doesn't, so don't remove it).
 
-### 3. Transposed per-point candidate table `cand[point]`
+### 4. Transposed per-point candidate table `cand[point]`
 
 **Origin:** v4/v5's `cand` vector (present since v4).
-**Impact:** Large (enabler for items 5, 9).
-**Effort:** Low-Medium. **Depends on:** item 2 (for the `Bits` type).
+**Impact:** Large (enabler for items 6, 10).
+**Effort:** Low-Medium. **Depends on:** item 3 (for the `Bits` type).
 
 `Context` currently only stores `cov[class] -> Bits of points`. Add the
 transpose:
@@ -254,11 +385,11 @@ template <int P, int K> struct Context
 This is what turns "find every class that covers point `t`" from an O(P/2)
 scan into a single stored `Bits`, ready to intersect with `avail`.
 
-### 4. Word-scan bit iteration
+### 5. Word-scan bit iteration
 
 **Origin:** v6.1.
 **Impact:** Medium-Large (constant-factor multiplier across every hot loop).
-**Effort:** Low-Medium. **Depends on:** item 2 (needs raw `w[]` access).
+**Effort:** Low-Medium. **Depends on:** item 3 (needs raw `w[]` access).
 
 Add a helper and use it everywhere a `Bits` needs its set bits enumerated:
 
@@ -283,13 +414,13 @@ Apply it to:
   both loop `for (int pos = 0; pos < bitlen; ++pos) if (context.cover(i)[pos]) ...`
   — word-scan `context.cover(i)`'s set bits instead of testing every
   position.
-- The candidate/gain loops introduced in items 5 and 6.
+- The candidate/gain loops introduced in items 6 and 7.
 
-### 5. Restrict candidate enumeration to `cand[bt] & avail`
+### 6. Restrict candidate enumeration to `cand[bt] & avail`
 
 **Origin:** v4/v5 (`Bits choices=cand[bt]&avail; for v in 0..n if choices.test(v)`).
 **Impact:** Large.
-**Effort:** Low once items 2-3 land.
+**Effort:** Low once items 3-4 land.
 
 `Dfs::run`'s main loop (`find_cover.h:79-94`) currently scans **all**
 `P/2` classes every node:
@@ -307,7 +438,7 @@ Replace with an intersection against the new `cand` table:
 ```cpp
 auto choices = (nextToCover == -1) ? state.choice.avail
                                     : (context<P, K>.cand(nextToCover) & state.choice.avail);
-for_each_set_bit(choices, [&](int i) { ... });   // see item 4 for for_each_set_bit
+for_each_set_bit(choices, [&](int i) { ... });   // see item 5 for for_each_set_bit
 ```
 
 Same fix applies to `early_return_bound`'s `bestCovering_next` computation
@@ -317,18 +448,18 @@ filtering by `context<P,K>.cover(i)[nextToCover]`, iterate
 `bestCovering` half of that loop still needs to scan all of `avail`,
 since it's a bound over *every* remaining class, not just those covering
 one point — but with `avail` now a `Bits`, that scan is also word-scannable,
-see item 4.)
+see item 5.)
 
-### 6. Tighten `early_return_bound` into a real `gain_bound`
+### 7. Tighten `early_return_bound` into a real `gain_bound`
 
 **Origin:** v4/v5 (`gain_bound` itself: sum of top-`slots` gains via
 `nth_element`, applied at every node) + v6.2 (O(1) `need > slots*m`
 short-circuit, fixed top-k buffer for `slots <= 4`, total-sum shortcut,
-`bsum` output for reuse by item 7).
+`bsum` output for reuse by item 8).
 **Impact:** Huge — this is basegen's single biggest documented win (~3x).
-**Effort:** Medium-High. **Depends on:** items 2 and 4 (`Bits avail` +
+**Effort:** Medium-High. **Depends on:** items 3 and 5 (`Bits avail` +
 word-scan iteration over it — this bound scans *all* of `avail`, not the
-`cand`-restricted subset, so it doesn't need items 3/5). The pure
+`cand`-restricted subset, so it doesn't need items 4/6). The pure
 bound-tightening logic itself can technically be written before those
 land, but it'll be slow until they do.
 
@@ -390,13 +521,13 @@ Call it unconditionally at the top of `Dfs::run` (after the `elems.size()
 can be added later without changing the interface (`gain_bound` already
 returns `bsum` either way).
 
-### 7. Gain-sorted children, computed once per node
+### 8. Gain-sorted children, computed once per node
 
 **Origin:** v4/v5 (sorts children by gain at all — currently missing
 entirely from `find_cover.h`) + v6.1 (hoists the gain computation out of
 the comparator).
-**Impact:** Medium standalone; **large as an enabler** for item 8.
-**Effort:** Low. **Depends on:** items 4-5.
+**Impact:** Medium standalone; **large as an enabler** for item 9.
+**Effort:** Low. **Depends on:** items 5-6.
 
 `find_cover.h`'s `Dfs::run` loop currently visits candidates in raw
 class-index order — no gain ordering at all. Add it:
@@ -416,14 +547,14 @@ std::sort(buf.begin(), buf.begin() + nch, [](auto&a, auto&b){
 computed once into `buf`, not inside the comparator (matches v6.1, not
 just v4/v5's original weaker version).
 
-### 8. Child-gain cutoff
+### 9. Child-gain cutoff
 
 **Origin:** v6.3.
 **Impact:** Large (basegen measured -37% nodes).
-**Effort:** Low. **Depends on:** items 6 and 7 (needs the tightened
+**Effort:** Low. **Depends on:** items 7 and 8 (needs the tightened
 bound's `bsum` and gain-sorted children).
 
-In the (now gain-sorted, per item 7) child loop, break as soon as a
+In the (now gain-sorted, per item 8) child loop, break as soon as a
 child's own gain plus the bound on the rest can't reach `need`:
 
 ```cpp
@@ -435,13 +566,13 @@ for (int ci = 0; ci < nch; ++ci)
 }
 ```
 
-### 9. Exact closed-form finish at the last two picks
+### 10. Exact closed-form finish at the last two picks
 
 **Origin:** v6.2.
 **Impact:** Large (basegen's single biggest measured win, 373s -> 125s).
-**Effort:** Medium-High. **Depends on:** items 3-4 (cand table, word-scan)
-and item 6 (a slots==2-shaped bound to fast-reject before doing the
-intersection work). Does **not** depend on item 10 (undo-log) — they're
+**Effort:** Medium-High. **Depends on:** items 4-5 (cand table, word-scan)
+and item 7 (a slots==2-shaped bound to fast-reject before doing the
+intersection work). Does **not** depend on item 11 (undo-log) — they're
 independent, and this item has strictly larger impact, hence the order.
 
 When exactly 2 classes remain to pick (`K - state.elems.size() == 2`),
@@ -461,55 +592,107 @@ if (K - state.elems.size() == 2)
 }
 ```
 
-This is one of the two most invasive items on the list — it's a
-genuinely new code path, not a tweak to the existing loop — so land it
-after the core bound/ordering machinery (1-8) is in place and validated
-(you want a solid bound to fast-reject first picks before paying for the
-intersection on each). It's ordered *before* item 10 despite that,
-because its impact is larger and nothing about it depends on item 10.
+This is one of the most invasive items on the list — it's a genuinely new
+code path, not a tweak to the existing loop — so land it after the core
+bound/ordering machinery (2-9) is in place and validated (you want a
+solid bound to fast-reject first picks before paying for the intersection
+on each). It's ordered *before* item 11 despite that, because its impact
+is larger and nothing about it depends on item 11.
 
-### 10. Undo-log instead of full per-node state copy
+### 11. Undo-log instead of full per-node state copy
 
 **Origin:** v6.1.
 **Impact:** Medium.
-**Effort:** Medium. **Depends on:** item 2 (do this after the
+**Effort:** Medium. **Depends on:** item 3 (do this after the
 `AvailableChoice` representation is settled, so you're not rewriting the
 undo logic twice). Nothing later depends on this item, which is why it's
-last despite being no more "invasive" than item 9 — it simply has the
+last despite being no more "invasive" than item 10 — it simply has the
 smallest payoff of the remaining work.
 
 `Dfs::run` currently does a full-struct save/restore of `AvailableChoice`
 once per node (`find_cover.h:76,96`: `const auto saved_choice = state.choice;`
 / `state.choice = saved_choice;`) plus a full `CoveredBitset` copy per
 child attempt (`find_cover.h:85,92`: `CoveredBitset mem = state.covered;`
-/ `state.covered = mem;`). With `avail` now a `Bits<P/2>` (item 2) and
+/ `state.covered = mem;`). With `avail` now a `Bits<P/2>` (item 3) and
 `_remaining` still a small array, mutate-and-log instead of copying: when
 eliminating class `i`, record only the `_remaining[pos]` entries actually
 decremented (bounded by `m`, the fixed per-class coverage count) in a
 small fixed buffer, then replay in reverse to undo — same shape as
 basegen's `add_irred_logged`/`undo_irred`. The `CoveredBitset` restore is
-already cheap (a few `uint64_t` words once item 2 lands) and doesn't need
+already cheap (a few `uint64_t` words once item 3 lands) and doesn't need
 this treatment — focus the undo-log on `AvailableChoice`.
 
 ---
 
 ## Suggested implementation order
 
-**1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10** — the numbering above *is* the
-implementation order now (that's what the resort in Part 2's intro
-established). In words:
+**1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11** — the numbering above *is*
+the implementation order now. In words:
 
-1. Necessary-condition short-circuits — zero-dependency, do first.
-2. Custom `Bits` type + `avail` bitset — foundational, unlocks everything else.
-3. Transposed `cand[point]` table — depends on 2.
-4. Word-scan bit iteration — depends on 2.
-5. Restrict candidate enumeration to `cand[bt] & avail` — depends on 2-3.
-6. Tightened `gain_bound` — depends on 2 and 4; highest-impact single item, land as soon as its dependencies allow rather than waiting for 5/7.
-7. Gain-sorted children (hoisted) — depends on 4-5; exists to enable 8.
-8. Child-gain cutoff — depends on 6-7.
-9. Exact slots==2 closed-form finish — depends on 3-4 (+6); larger impact than 10, ordered before it.
-10. Undo-log — depends on 2 only; last because nothing depends on it and it has the smallest remaining payoff.
+1. Irredundant/reducible search decomposition — placed first by choice
+   (independent of 2-11; see Part 2's opening note). Treat the
+   irredundant-only sub-search as the confident part to build and
+   validate first; the redundant-half strategy is an open design question
+   to resolve as a follow-up, not assumed up front.
+2. Necessary-condition short-circuit — zero-dependency, cheap.
+3. Custom `Bits` type + `avail` bitset — foundational, unlocks everything else.
+4. Transposed `cand[point]` table — depends on 3.
+5. Word-scan bit iteration — depends on 3.
+6. Restrict candidate enumeration to `cand[bt] & avail` — depends on 3-4.
+7. Tightened `gain_bound` — depends on 3 and 5; highest-impact single item among 2-11, land as soon as its dependencies allow rather than waiting for 6/8.
+8. Gain-sorted children (hoisted) — depends on 5-6; exists to enable 9.
+9. Child-gain cutoff — depends on 7-8.
+10. Exact slots==2 closed-form finish — depends on 4-5 (+7); larger impact than 11, ordered before it.
+11. Undo-log — depends on 3 only; last because nothing depends on it and it has the smallest remaining payoff.
 
 Validate each step the way basegen's own commits did: build before/after,
 diff full output (`SetOfSpeedSets<K>` contents) on a couple of small
 `(P,K)` instances, confirm byte-identical results, *then* look at timing.
+
+---
+
+## Per-item workflow
+
+Each numbered item above is implemented **one at a time**, only on
+explicit request naming that item. For the requested item:
+
+1. **Read this file in full** first if it hasn't already been read this
+   session.
+2. **Implement** exactly the section requested — no more (don't start the
+   next item), no less (don't leave it partial).
+3. **Verify statically**: re-read the diff against this file's own
+   description/pseudocode for that item; confirm it matches the stated
+   intent and doesn't silently change behavior the item doesn't call for.
+4. **Compile and run** the fixed regression set below, before (baseline)
+   and after (this item's change), and diff the full `SetOfSpeedSets<K>`
+   output (all `Log(...)` lines, timing lines excluded) between the two:
+
+   | K | Primes | Timeout (per run) |
+   |---|---|---|
+   | 10 | 127, 199, 461 | 180s |
+   | 11 | 131, 199 | 180s |
+   | 12 | 139, 199, 211 | 180s |
+
+   (`p = 199` is used at every `K` deliberately — it's basegen's own
+   long-standing benchmark/instrumentation prime, per the `p==199` special
+   cases throughout `basegen_v5.cpp`/`basegen_v6.cpp`; pairing it with the
+   smallest listed prime for each `K` gives one fast sanity check and one
+   moderately-loaded one per run. K=10 and K=12 each additionally carry one
+   larger prime (461 and 211 respectively) chosen by probing candidates
+   from `LrcVerifier<K>`'s prime list to land close to ~2 minutes on the
+   unoptimized baseline — see `improvement_implementation.md`'s baseline
+   entry for the probe data. If a run needs longer than the timeout, that's
+   a signal to pick a smaller prime for routine validation, not to
+   silently raise the timeout.)
+
+5. **If outputs mismatch**: the change is wrong — debug and fix before
+   doing anything else in steps 6+. Do not proceed on a known mismatch.
+6. **If outputs match**: append an entry to `improvement_implementation.md`
+   (create it on the first item) recording — which item, a summary of the
+   diff, confirmation of the byte-identical regression results, and timing
+   before/after for each test case.
+7. **Ask the user to review and approve** that new entry.
+8. **Once approved, commit** (the code change and the
+   `improvement_implementation.md` update together).
+9. **Stop and wait** for the user's next prompt before starting another
+   item — do not chain into the next numbered item on your own.
