@@ -1,6 +1,3 @@
-% TODO: 
-% claude flagged mistakes in these lines: 
-% :572 ($\pi \to \pi^{-1}$), :587/:589 (the $2^k$ constant), :576, :254, :358, :364.
 \documentclass[11pt]{amsart}
 \usepackage{graphicx}
 \usepackage{amsfonts,amsmath,amssymb,amsthm}
@@ -72,7 +69,7 @@ the conjecture can be stated as follows:
   \[ \norm{t u_i-tu_j} \ge \frac{1}{k+1} \quad \text{for all } j \ne i. \]
 \end{conjecture}
 
-Cusick's \cite{bienia1998flows} popular interpretation give the conjecture's name: if $k+1$ runners run with distinct,
+Cusick's \cite{bienia1998flows} popular interpretation gives the conjecture's name: if $k+1$ runners run with distinct,
 constant speeds around a unit-length track, each of them will be \emph{lonely} at some time. 
 Being lonely means being at least $\tfrac{1}{k+1}$ away from other runners. 
 However, the version most commonly worked with fixes one runner to be stationary. 
@@ -115,7 +112,7 @@ $p$ symmetry during implementation to reduce the verification necessary. These w
 Furthermore, we employ a polynomial method to establish the following proposition that aids the proof for $k\in\{10,12\}$.
 \begin{proposition} \label{prop:onetokintro}
     Let $k+1$ and $p > k^2 + k$ be odd primes and $(u_1,\ldots,u_k)\in\Z_{>0}^k$.
-    If $\gcd(u_1,\cdots,u_k)=1$ and 
+    If $\gcd(u_1,\ldots,u_k)=1$ and 
     \[u_i\equiv i\pmod{p} \quad \text{for all } i = 1,\dots,k,\] 
     then $(u_1,\ldots,u_k)$ has the LR property.
 \end{proposition}
@@ -206,7 +203,7 @@ but having this local property for every $\vbf$ implies the global conclusion th
 
     Otherwise, there is $t\in\frac{1}{l_\vbf p}\Z$ such that $\norm{tv'_i}\geq\frac{1}{k+1}$ for all $i$. 
     Then observe that $\frac{1}{l_\vbf p}\Z\subseteq\frac{1}{lp}\Z$, so $t\in\frac{1}{lp}\Z$,
-    and $\norm{tu_i}=\norm{tv_i}\geq\frac{1}{k+1}$ for all $i$.
+    and $\norm{tu_i}=\norm{tv'_i}\geq\frac{1}{k+1}$ for all $i$.
 
     In both cases, we have shown $\ubf$ to be $(k,p,l)$-proper.
     Therefore, $I(k,p,l)=\emptyset$.
@@ -254,15 +251,15 @@ but this entails checking approximately $(lp)^k$ tuples.
 Moreover, for reasons to be given in Remark~\ref{rem:tightset},
 we need $l\geq k+1$, so this approach becomes very laborious even for $k=8$ \cite{rosenfeld2025lonely2}.
 
-Before we motivate them, let us at once formalize and validate the two techniques that allows for efficient verification in the following proposition.
+Before we motivate them, let us at once formalize and validate the two techniques that allow for efficient verification in the following proposition.
 \begin{proposition}
 \label{prop:liftproj} 
-    Fix an integer $k \ge 2$ and prime $p$.
+    Fix an integer $k \ge 2$, prime $p$, and any integer $l$.
     Let $S\subseteq\Z_{p,l}^k$ be such that $J(k,p)\subseteq\pi_{p}S$. 
     We also have $J(k,p)\subseteq\pi_pS'$ if $S'$ is constructed in one of the following ways:
     \begin{itemize}
         \item (lifting with $c$) $S'=\{\vbf\in\pi_{clp\rightarrow lp}^{-1}S:\vbf\text{ is $(k,p,cl)$-improper}\}$
-        \item (projecting) $S'=\pi_pS$.
+        \item (projecting) $S'=\pi_{lp\to p}S$.
     \end{itemize}
     \begin{proof}
         The second case is obvious. In the first case, note that
@@ -316,7 +313,7 @@ Empirically, $|S|$ is found to be smaller as we lift\footnote{
   it seems that the increased precision of the allowed time in the lifted ansatz has a greater effect \cite{Trakulthongchai}.
 }. Thus, we should take $c$ to be small at first. 
 
-Observe that lifting a set $S$ of tuples with a multiplier $c$ requires checking at most
+O[101;1:3ubserve that lifting a set $S$ of tuples with a multiplier $c$ requires checking at most
 \[ \left| \pi^{-1}_{clp \to lp} S \right| = c^k\cdot|S| \]
 speed tuples.
 Furthermore, as $k$ gets larger, the value of $c$ has a greater effect on the computational time, 
@@ -358,13 +355,13 @@ This lift is extremely computationally intensive: for $k=12$, the $c=k+1$ lift r
 times more tuples than the $c=2$ lift (for fixed $p$ and input set).
 If we are to verify the conjecture for $k\in\{10,12\}$ in a reasonable time, we need to avoid doing this lift computationally.
 For many primes $p$, after lifting $I(10,p,1)$ with $c=2$ several times and projecting back,
-the only tuples that cannot be shown eventually proper is, up to symmetry, $( 1, 2, \ldots, 10 )$. 
+the only tuples that cannot be shown eventually proper are, up to symmetry, $( 1, 2, \ldots, 10 )$. 
 The analogous observation holds when $k=12$.
 
 Therefore, the aim of this section is to determine the eventual properness
 of $\onetok$. 
 We emphasize that our method still requires \emph{lifting} with $c=k+1$. 
-In fact, we merely are finding a solution for speed tuples in $\pi^{-1}_{(k+1)p\rightarrow p}\onetok$ in the $(k,p,k+1)$-ansatz,
+In fact, we are merely finding a solution for speed tuples in $\pi^{-1}_{(k+1)p\rightarrow p}\onetok$ in the $(k,p,k+1)$-ansatz,
 but we do so analytically instead of computationally.
 
 First, we prove the following Proposition \ref{prop:polynomial} which is the main ingredient used in this section.
@@ -425,7 +422,7 @@ Instead of considering times of the form $t=\frac{a}{(k+1)p}$, we decompose them
 The former term has no dependence of $p$. To capture the effect of $p$ of the latter term, we define 
 \[ \rbf_k(t):=\left( \lfloor (k+1) \fracpart{t} \rfloor, \; \lfloor (k+1)\fracpart{2t} \rfloor, \; \ldots, \; \lfloor  (k+1) \fracpart{kt} \rfloor \right) \] 
 for $t\in\R$.
-Intuitively, $\lfloor (k+1) \fracpart{it} \rfloor = x$ means that the runner with speed $i$ is the arc 
+Intuitively, $\lfloor (k+1) \fracpart{it} \rfloor = x$ means that the runner with speed $i$ is in the arc 
 $\left[ \frac{x}{k+1}, \frac{x+1}{k+1} \right)$ of the unit circle at time $t$.
 With this discretization, we state Lemma~\ref{lem:resolvekplusone}.
 
@@ -568,15 +565,17 @@ For completeness, we show that this equivalence indeed preserves eventual proper
   then by Chinese Remainder Theorem there is $b\in\Z_{lp}$ such that $b\equiv a^{-1} \pmod{p}$ and $b\equiv1\pmod{l}$. 
   In particular, $b\in\Unit{lp}$ and 
   \[\ubf':=b\vbf'\in\pi^{-1}(\ubf)\]
-  because $\pi(b\vbf')=\pi(b)\pi(\vbf')=a^{-1}(a\ubf)=\ubf$. We need $b$ to be a unit because if a time $t$ is a witness for $\ubf$, then the time $b^{-1}t$ is a witness for $\vbf$.
+  because $\pi(b\vbf')=\pi(b)\pi(\vbf')=a^{-1}(a\ubf)=\ubf$. 
+  We need $b$ to be a unit because if a time $t$ is a witness for $\ubf$, 
+  then the time $b^{-1}t$ is a witness for $\vbf$.
 
   Then, whichever way $\ubf'$ satisfies properness,
   it can be checked that $\vbf'$ also satisfies properness in the same way.
-  Therefore every speed tuple in $\pi(\vbf)$ is proper, and thus $\vbf$ is eventually proper.
+  Therefore every speed tuple in $\pi^{-1}(\vbf)$ is proper, and thus $\vbf$ is eventually proper.
 \end{proof}
 
 Therefore, we may only verify the eventual properness for a single element in each equivalence class. 
-We implement this by fixing by ordering the speeds ascendingly,
+We implement this by ordering the speeds ascendingly,
 limiting the speeds to be in the first half of residues modulo $p$, and fixing $v_1$ to be $1$.
 In other words, we check all tuples of integers $(v_1,\ldots,v_k)$ with 
 \[1=v_1\leq v_2\leq\cdots\leq v_k\leq\frac{p-1}{2}.\] 
@@ -587,9 +586,9 @@ In other words, we check all tuples of integers $(v_1,\ldots,v_k)$ with
 We should stress that this reduction is essential to obtaining our results. 
 There are approximately $p^k$ tuples in the $(k,p,1)$-ansatz,
 but with this reduction we only need to check a much smaller number of approximately
-\[\binom{p/2}{k-1}\approx\frac{p^{k-1}}{2^k(k-1)!}.\]
+\[\binom{p/2}{k-1}\approx\frac{p^{k-1}}{2^{k-1}(k-1)!}.\]
 Compared to the implementation of \cite{Rosenfeld} and \cite{Trakulthongchai}, 
-we reduce the number of tuples to check by a factor of approximately $p/k$. 
+we reduce the number of tuples to check by a factor of approximately $\frac{p}{2k}$. 
 
 \subsection{Verification algorithms}
 \label{subsec:algo}
@@ -629,7 +628,7 @@ This is why we only use $p>k^2+k$ for $k\in\{10,12\}$.\footnote{
 
 \subsection{Further particulars}
 \label{subsec:particulars}
-We implement the algorithms of Subsection \ref{subsec:algo} in \texttt{C++}. %nice
+We implement the algorithms of Subsection \ref{subsec:algo} in \texttt{C++}.
 Compared to the original implementations of \cite{rosenfeldcode} and \cite{tanupatcode},
 we improve practical performance by refactoring to support parallel execution and by using more memory-efficient data structures.
 We also tested our implementation against that of~\cite{tanupatcode} on a number of smaller cases.
@@ -643,7 +642,12 @@ $k=9$ in 41 seconds (23 hours using \cite{tanupatcode}), and $k=10$ in 45 minute
 The proofs of $k=11$ and $k=12$ were run in multiple batches, with multiple versions, 
 and on multiple machines, making the exact time taken incomparable to other cases. 
 
-A heuristic estimate from the smaller cases is that the time required to verify the emptiness of $J(k, p)$ grows in proportion to $\frac{p^{(k+1)/2}}{k2^k}$, which improves over \cite{rosenfeld2025lonely2}\footnote{Rosenfeld \cite{rosenfeld2025lonely2} reported heuristic asymptotic runtimes for $k=8,9$. For $k=8$, our runtime is $\Theta(p^{4.5})$ compared to his $\Theta(p^{5.7})$, and for $k=9$, our runtime is $\Theta(p^5)$ compared to his $\Theta(p^{6.5})$, ignoring the constant term depending only on $k$. An improvement by a factor of $p$ is due to the reduction modulo $p$ in Subsection \ref{subsec:equiv}, and the remaining likely arises from sieving.}. Extrapolating this model suggests that completing the proof for $k=11$ will take approximately 40 hours, and for $k=12$ approximately 40 days, on the same 10-core machine.
+A heuristic estimate from the smaller cases is that the time required to verify the emptiness of $J(k, p)$ grows in proportion to $\frac{p^{(k+1)/2}}{k2^k}$, 
+which improves over \cite{rosenfeld2025lonely2}\footnote{Rosenfeld \cite{rosenfeld2025lonely2} reported heuristic asymptotic runtimes for $k=8,9$. 
+For $k=8$, our runtime is $\Theta(p^{4.5})$ compared to his $\Theta(p^{5.7})$, and for $k=9$, our runtime is $\Theta(p^5)$ compared to his $\Theta(p^{6.5})$, 
+ignoring the constant term depending only on $k$. An improvement by a factor of $p$ is due to the reduction modulo $p$ in Subsection \ref{subsec:equiv}, 
+and the remaining likely arises from sieving.}. Extrapolating this model suggests that completing the proof for $k=11$ will take approximately 40 hours, 
+and for $k=12$ approximately 40 days, on the same 10-core machine.
 
 The source of the computation, along with the log files and detailed descriptions, 
 can be found in the first author's GitHub repository \cite{mycode}.
@@ -697,7 +701,7 @@ $k$ & \multicolumn{1}{c|}{$P_k$}
 
 \section{Non-tight speed tuples in an ansatz}
 \label{sec:tight}
-For a speed tuple $\vbf$, define the maximum loneliness function \[\ml(\vbf)=\max_{t\in\R}\min_{i\in\{1,\ldots,k\}}\norm{tv_i}\] 
+For a speed tuple $\vbf$, define the maximum loneliness function \[\ml(\vbf)=\sup_{t\in\R}\min_{i\in\{1,\ldots,k\}}\norm{tv_i}\] 
 (as $\min_{i\in\{1, \ldots, k\}} \norm{tv_i}$ is continuous on $\R/\Z$, $\sup$ can be replaced by $\max$).
 Then $LRC(k)$ corresponds to the inequality $\ml(\vbf)\geq\frac{1}{k+1}$ for every $\vbf\in\Z_{>0}^k$. 
 Goddyn and Wong \cite{goddyn2006tight} studied \emph{tight} speed tuples, namely speed tuples where the equality is attained. 
@@ -726,7 +730,8 @@ However, it turns out that for $p$ sufficiently large, we can choose $l=1$ to el
   Hence, there is a uniform $\varepsilon_k>0$ such that $\ml(\vbf)\geq\frac{1}{k+1}+\varepsilon_k$ for every non-tight $\vbf$. We choose $\varepsilon_k < \frac{1}{2}$.
         
   Let $p_k = \varepsilon_k^{-k}$, $p>p_k$ be prime, and $\vbf\in\Z_{p,1}^k$ be not equivalent to any tight speed tuple $\ubf\in\Z_{p,1}^k$.
-  Let $h = \lceil p^{1/k} \rceil - 1$. Since $p > 2^k$, $h > \frac{1}{2} p^{1/k}$ and $1 < h^k < p \ge (h+1)^k$. 
+  Let $h$ be an integer which $1 < h^k < p \le (h+1)^k$.
+  Since $p > 2^k$, it follows that $h > \frac{1}{2} p^{1/k}$.
   Partition $[0,p)^k$ into $h^k$ boxes in the natural way, so that the set 
   \[ \{a\vbf \pmod{p}:a\in\Z_p\}\] 
   contains $p$ points which are distinct in every entry, meaning for every $i$, $\{av_i:a\in\Z_p\}=\Z_p$. 
@@ -734,18 +739,17 @@ However, it turns out that for $p$ sufficiently large, we can choose $l=1$ to el
   By pigeonhole, two distinct elements $b\vbf, c\vbf$ lie in the same box.
   Let $a = b - c \in \Z_p$. Since the box width is $w := \lfloor \frac ph \rfloor$, 
   we know that, consider as vector in $\Z_p^k$,  \[ a \vbf \in ( (0, w] \cup [p-w, p) )^k. \]
-  Hence, $a\vbf$ is equivalent to $\vbf'$ where each coordinate has undergone sign change, and that gives 
-  \[ \vbf' \in (0, w]^k. \]
-  In other words, $\max (\vbf') \le w$
 
-  There is a time $T$ where $ML(\vbf') \ge \frac{1}{k+1} + \varepsilon_k$ is attained. 
+  We can further take $\vbf' \in (0, w]^k$ that is equivalent to $a \vbf$ by applying coordinate-wise sign change. In other words, we have $\max (\vbf') \le w$.
+
+  There is a time $T$ where $\ml(\vbf') \ge \frac{1}{k+1} + \varepsilon_k$ is attained. 
   Observe that, since $\norm{\cdot}$ is $1$-Lipschitz, for any time $t$ and index $i$, \[|\norm{tv'_i}-\norm{Tv'_i}|\leq|t-T|v'_i\leq|t-T|(2p^{1-1/k}).\] 
-  This gives $\norm{tv_i}\geq\frac{1}{k+1}+\varepsilon_k-|t-T|(2p^{1-1/k})$. 
+  This gives $\norm{tv'_i}\geq\frac{1}{k+1}+\varepsilon_k-|t-T|(2p^{1-1/k})$. 
   Hence, if \[|t-T|<\frac{\varepsilon_k}{2p^{1-1/k}},\] we have that $t$ is a witness time. 
-  Since we are able to choose $t\in\frac{1}{p}\Z_p$ such that $|t-T|\leq\frac{1}{2p}$, 
+  Since we are able to choose $t\in\frac{1}{p}\Z$ such that $|t-T|\leq\frac{1}{2p}$, 
   whenever $\frac{1}{2p}\leq\frac{\varepsilon_k}{2p^{1-1/k}}\iff p\geq\varepsilon_k^{-k}$, 
   there is a witness time $t=\frac{d}{p}$ with $d\in\Z$ for $\vbf'$. 
-  This time is also a witness for $a\vbf$, so $t=\frac{a^{-1}d}{p}$ where $a^{-1}$ is the inverse of $a$ modulo $p$ is a witness time for $\vbf$. 
+  This time is also a witness for $a\vbf$, so $t=\frac{ad}{p}$ is a witness time for $\vbf$. 
 \end{proof}
 
 Proposition \ref{prop:lrcimpliestight} explains why the speed tuples behave increasingly nicely as $p$ gets larger: 
@@ -753,7 +757,7 @@ the $\norm{\cdot}_\infty$ norm of the smallest tuple in each equivalence class a
 From \cite[Theorem 3.1]{kravitz2021barely}, we have $\frac{s}{ks+1}\in\mathcal{\Tilde{S}}(k)$ for every $s\in\Z_{>0}$, hence the spectral gap can be bounded above by
 \[\varepsilon_k\leq\frac{2}{2k+1}-\frac{1}{k+1}<\frac{1}{2k^2}.\] 
 By this method we must then choose $p_k =\varepsilon_k^{-k}>2^kk^{2k}$. 
-This is much larger that what the empirical evidence suggests (which is in the hundreds for our $k$); it would be interesting to see how this gap can be closed.
+This is much larger than what the empirical evidence suggests (which is in the hundreds for our $k$); it would be interesting to see how this gap can be closed.
 
 \section{Concluding remarks}
 \label{sec:conclude}
@@ -761,7 +765,7 @@ Proposition \ref{prop:polynomial} brings into picture a finite field reduction o
 The algebraic method there may be generalizable to verify Conjecture \ref{lonelyconjred} for other classes of speed tuples. 
 This method is particularly useful when the speeds are small, so improving this could be complementary to the analytic methods that are powerful when the speeds are large.
 
-Looking ahead, from the same heuristic estimate as in Subsection \ref{subsec:particulars}, our algorithm will take $30$ years on our original machine to verify $LRC(13)$. 
+Looking ahead, from the same heuristic estimate as in Subsection \ref{subsec:particulars}, our algorithm will take $15$ years on our original machine to verify $LRC(13)$. 
 The primary bottleneck here is the efficient computation of $I(k, p, 1)$. 
 Progress then likely requires a better understanding of speed tuples that do not have a witness time in an ansatz, 
 which in turn could yield stronger pruning conditions and make the initial sieve more tractable. 
