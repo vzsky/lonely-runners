@@ -778,3 +778,106 @@ spends its time — are 8-36% faster than item 8; the smallest cases are
 within measurement noise either way, as expected (their absolute times
 are dominated by process/thread startup, not the algorithm). This is the
 committed shape.
+
+---
+
+## Item 10: exact closed-form finish at `slots == 2`
+
+**Origin:** v6.2 (`gain_bound`'s slots==2 branch in basegen's `dfs_irred`).
+**Depends on:** items 4-5 (`cand` table, word-scan) + item 7 (a tight
+bound to fast-reject first picks) — all already committed (7 landed as
+part of "items 7+9").
+
+**Change (`src/find_cover.h`):** when exactly 2 picks remain
+(`K - state.elems.size() == 2`), `Dfs::run` now calls a new
+`finish_last_two()` instead of the generic per-child recursive loop, and
+returns immediately:
+- The first of the two remaining picks still goes through the existing
+  `next_choices` unchanged (same bound, same cutoff) — no new logic there.
+- For each first-pick candidate `i`, the valid second-pick set is
+  computed directly rather than recursing a third level deep: intersect
+  `cand(t)` (the transposed per-point table from item 4) over every point
+  `t` still uncovered after adding `i`. If no points remain uncovered
+  (`i` alone already completed the cover), the second pick is simply any
+  still-available class — **including `i` itself**: a cover here is a
+  multiset of `K` picks, not a set of `K` distinct classes (confirmed
+  directly by the user; a cover like `1, 1, 2, 3, 4, 5` is legal), so this
+  must not exclude self-repeats.
+- **Correctness of this collapse, checked algebraically, not just
+  empirically:** for `slots == 1` (the level `finish_last_two` replaces),
+  `next_choices`'s cutoff term reduces to exactly `child.gain >= need`.
+  Since a class's gain can't exceed the number of points still uncovered,
+  `gain >= need` (with `need` being exactly the size of the remaining
+  uncovered set) forces `gain == need`, i.e. the class covers *every*
+  remaining point — precisely the `cand`-intersection computed here. And
+  when `need == 0`, the cutoff term is always true and (since no point is
+  left to restrict by) every available class passes unfiltered — matching
+  this code's unrestricted `state.choice.available()` fallback exactly,
+  self-repeats included. So `finish_last_two` is not an approximation of
+  the generic path at `slots<=2` — it computes the identical result set
+  by a cheaper route.
+- One early draft explicitly excluded the first pick `i` from its own
+  second-pick set (`secondCandidates.reset(i)`), reasoning a cover must
+  use distinct classes. **This was wrong** — corrected after the user's
+  clarification above. In practice this exclusion was inert for the
+  "still uncovered" branch (`i` can never be in `cand(t)` for a `t` that's
+  still uncovered, since `i`'s own cover was already applied — the
+  `reset` never removed anything there), but it would have wrongly
+  dropped legitimate repeat-`i` completions in the "already fully
+  covered" branch. Caught before running the oracle, via the equivalence
+  argument above, not by a failed run.
+- Also cleaned up in the same pass: the now-unreachable leaf check at the
+  top of `Dfs::run` (`state.elems.size() == K`) was deleted rather than
+  left dead — once `finish_last_two` intercepts every completion starting
+  at `slots == 2`, `run()` is never called again with `elems.size() >
+  K - 2`, for any `K >= 3` (this repo's `K` is always 10-12, well clear of
+  that edge). A local variable in `finish_last_two` was also renamed
+  (`mustCover` → `possibleCand`) after review flagged that reusing the
+  `CoveredBitset` type for it was confusing: `CoveredBitset` conventionally
+  means "which times are covered" elsewhere in this file, but this
+  variable holds "which classes cover every remaining point" — a
+  speed-domain set, not a time-domain one. It only type-checked at all
+  because `CoveredBitset` and the class-availability bitset
+  (`AvailableChoice::ElimArray`) are the literal same instantiation
+  (`Bitset<P/2>`, since the number of classes and the number of time
+  positions are numerically equal in this construction) — not because the
+  domains are actually the same thing.
+
+**Verification:** `test.cpp`, all 8 fixed cases, byte-identical, at every
+step (initial implementation, the `reset(i)` fix, and the dead-code/rename
+cleanup).
+
+| K | P | count | sha256 match |
+|---|---|---|---|
+| 10 | 127 | 8228 | MATCH |
+| 10 | 199 | 4417 | MATCH |
+| 10 | 461 | 1 | MATCH |
+| 11 | 131 | 40615 | MATCH |
+| 11 | 199 | 18516 | MATCH |
+| 12 | 139 | 641960 | MATCH |
+| 12 | 199 | 494183 | MATCH |
+| 12 | 211 | 426537 | MATCH |
+
+**Timing vs. the previous committed state (items 7+9 + `utils::dispatch`
+generalization):**
+
+| K | P | previous | item 10 | Δ |
+|---|---|---|---|---|
+| 10 | 127 | 0.060s | 0.050s | -16.4% |
+| 10 | 199 | 0.812s | 0.723s | -11.0% |
+| 10 | 461 | 27.956s | 27.378s | -2.1% |
+| 11 | 131 | 0.236s | 0.188s | -20.5% |
+| 11 | 199 | 2.620s | 2.460s | -6.1% |
+| 12 | 139 | 3.377s | 3.053s | -9.6% |
+| 12 | 199 | 18.605s | 16.935s | -9.0% |
+| 12 | 211 | 31.059s | 28.801s | -7.3% |
+
+A real, modest win (2-21%) on every case — nowhere near basegen's ~3x
+(373s→125s) on their own p=239 benchmark, and that gap is expected rather
+than a red flag: basegen measured this specifically inside `dfs_irred`
+(the irredundancy-constrained search this repo doesn't have — see item 1
+in `improvement_plan.md`), where the last-two-picks case is a much larger
+share of total nodes. Here it's one closed-form shortcut inside the
+general (redundancy-allowing) search, so its relative contribution to
+total cost is smaller by construction, not because the shortcut itself is
+weaker.

@@ -112,10 +112,9 @@ template <int P, int K> struct Dfs
 
   void run()
   {
-    if (state.elems.size() == K)
+    if (K - state.elems.size() == 2)
     {
-      if (state.covered.count() != bitlen) return;
-      solutions.insert(state.elems.get_canonical_representation(P));
+      finish_last_two();
       return;
     }
 
@@ -140,6 +139,39 @@ template <int P, int K> struct Dfs
   }
 
 private:
+  void finish_last_two()
+  {
+    const auto firstPicks    = next_choices(state);
+    const auto saved_choice  = state.choice;
+
+    for (int i : firstPicks)
+    {
+      state.elems.insert(i + 1);
+      const CoveredBitset stillUncovered = ~(state.covered | context<P, K>.cover(i));
+
+      auto secondCandidates = state.choice.available();
+
+      if (stillUncovered.any())
+      {
+        auto possibleCand = ~CoveredBitset{};
+        stillUncovered.for_each([&](int t) { possibleCand &= context<P, K>.cand(t); });
+        secondCandidates &= possibleCand;
+      }
+
+      secondCandidates.for_each([&](int j)
+      {
+        state.elems.insert(j + 1);
+        solutions.insert(state.elems.get_canonical_representation(P));
+        state.elems.remove(j + 1);
+      });
+
+      state.elems.remove(i + 1);
+      state.choice.eliminate(i);
+    }
+
+    state.choice = saved_choice;
+  }
+
   [[nodiscard]] static InlinedVector<int, P / 2> next_choices(State st)
   {
     struct ScoredChild
