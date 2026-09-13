@@ -112,13 +112,21 @@ template <int P, int K> struct Dfs
 
   void run()
   {
-    if (K - state.elems.size() == 2)
+    const std::optional<int> nextToCover = state.choice.get_next_to_cover(state.covered);
+    if (!nextToCover)
     {
-      finish_last_two();
+      // already covered, the remaining slots are free!
+      solutions.merge(state.elems.fill_free_slots(P));
       return;
     }
 
-    const auto children = next_choices(state);
+    if (K - state.elems.size() == 2)
+    {
+      finish_last_two(*nextToCover);
+      return;
+    }
+
+    const auto children = next_choices(state, *nextToCover);
 
     const auto saved_choice = state.choice;
 
@@ -139,31 +147,33 @@ template <int P, int K> struct Dfs
   }
 
 private:
-  void finish_last_two()
+  void finish_last_two(int nextToCover)
   {
-    const auto firstPicks    = next_choices(state);
-    const auto saved_choice  = state.choice;
+    const auto firstPicks   = next_choices(state, nextToCover);
+    const auto saved_choice = state.choice;
 
     for (int i : firstPicks)
     {
       state.elems.insert(i + 1);
       const CoveredBitset stillUncovered = ~(state.covered | context<P, K>.cover(i));
 
-      auto secondCandidates = state.choice.available();
-
       if (stillUncovered.any())
       {
-        auto possibleCand = ~CoveredBitset{};
-        stillUncovered.for_each([&](int t) { possibleCand &= context<P, K>.cand(t); });
-        secondCandidates &= possibleCand;
-      }
+        auto secondCandidates = ~CoveredBitset{};
+        stillUncovered.for_each([&](int t) { secondCandidates &= context<P, K>.cand(t); });
+        secondCandidates &= state.choice.available();
 
-      secondCandidates.for_each([&](int j)
+        secondCandidates.for_each([&](int j)
+        {
+          state.elems.insert(j + 1);
+          solutions.insert(state.elems.get_canonical_representation(P));
+          state.elems.remove(j + 1);
+        });
+      }
+      else
       {
-        state.elems.insert(j + 1);
-        solutions.insert(state.elems.get_canonical_representation(P));
-        state.elems.remove(j + 1);
-      });
+        solutions.merge(state.elems.fill_free_slots(P));
+      }
 
       state.elems.remove(i + 1);
       state.choice.eliminate(i);
@@ -172,15 +182,14 @@ private:
     state.choice = saved_choice;
   }
 
-  [[nodiscard]] static InlinedVector<int, P / 2> next_choices(State st)
+  [[nodiscard]] static InlinedVector<int, P / 2> next_choices(State st, int nextToCover)
   {
     struct ScoredChild
     {
       int gain, index;
     };
 
-    const std::optional<int> nextToCover = st.choice.get_next_to_cover(st.covered);
-    if (nextToCover && !st.choice.canBeCovered(*nextToCover)) return {};
+    if (!st.choice.canBeCovered(nextToCover)) return {};
 
     const int need  = bitlen - st.covered.count();
     const int slots = K - st.elems.size();
@@ -217,7 +226,7 @@ private:
     for (const auto& child : children)
     {
       if (child.gain < first_ele_need) continue;
-      if (nextToCover && !context<P, K>.cand(*nextToCover).test(child.index)) continue;
+      if (!context<P, K>.cand(nextToCover).test(child.index)) continue;
       result.push_back(child.index);
     }
     return result;

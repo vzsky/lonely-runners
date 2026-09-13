@@ -5,6 +5,16 @@
 
 #include "utils.h"
 
+// Forward-declared so fill_free_slots (below) can name SetOfSpeedSets<K>
+// as its return type -- SpeedSet and SpeedSetHasher are each other's
+// dependency (Hasher needs SpeedSet complete to iterate it, SpeedSet
+// wants the alias before SpeedSetHasher exists), so the alias itself is
+// declared early using still-incomplete types; that's fine, an alias
+// doesn't need its arguments complete until actually used.
+template <int K> struct SpeedSet;
+template <int K> struct SpeedSetHasher;
+template <int K> using SetOfSpeedSets = std::unordered_set<SpeedSet<K>, SpeedSetHasher<K>>;
+
 template <int K> struct SpeedSet
 {
 private:
@@ -105,6 +115,34 @@ public:
     for (int i = 0; i < K; i++) result.mSet[i] %= p;
     return result;
   }
+
+  // While there's a free slot, try every possible speed in it and
+  // recurse -- coverage is already complete by the time this is called
+  // (see Dfs::run), so any speed is a legal fill for the remaining slots.
+  SetOfSpeedSets<K> fill_free_slots(int prime) const
+  {
+    SpeedSet<K> cur = *this;
+    SetOfSpeedSets<K> results;
+    cur.fill_free_slots_rec(prime, results);
+    return results;
+  }
+
+private:
+  void fill_free_slots_rec(int prime, SetOfSpeedSets<K>& results)
+  {
+    if (mSize == K)
+    {
+      results.insert(get_canonical_representation(prime));
+      return;
+    }
+
+    for (int v = 1; v <= prime / 2; ++v)
+    {
+      insert(v);
+      fill_free_slots_rec(prime, results);
+      remove(v);
+    }
+  }
 };
 
 template <int K> std::ostream& operator<<(std::ostream& os, const SpeedSet<K>& s)
@@ -125,8 +163,6 @@ template <int K> struct SpeedSetHasher
     return h;
   }
 };
-
-template <int K> using SetOfSpeedSets = std::unordered_set<SpeedSet<K>, SpeedSetHasher<K>>;
 
 template <int K> std::ostream& operator<<(std::ostream& os, const SetOfSpeedSets<K>& s)
 {
