@@ -30,17 +30,23 @@ template <int P, int K> struct Context
     for (int i = 0; i < P / 2; ++i)
       for (int t = 1; t <= P / 2; ++t)
       {
-        int pos        = P / 2 - t;
-        int rem        = (1LL * t * (i + 1)) % P;
-        mCover[i][pos] = (rem * (K + 1) < P) || ((P - rem) * (K + 1) < P);
+        int pos = P / 2 - t;
+        int rem = (1LL * t * (i + 1)) % P;
+        if ((rem * (K + 1) < P) || ((P - rem) * (K + 1) < P))
+        {
+          mCover[i].set(pos);
+          mCand[pos].set(i);
+        }
       }
   }
 
   const CoveredBitset& cover(int i) const { return mCover[i]; }
+  const CoveredBitset& cand(int pos) const { return mCand[pos]; }
 
 private:
   // NB. ideally this is const after initialization but compile time heavy enough
   CovArray mCover{};
+  CovArray mCand{};
 };
 
 template <int P, int K> static const Context<P, K> context{};

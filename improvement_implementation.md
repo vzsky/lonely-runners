@@ -203,3 +203,38 @@ normal — is the signature of contention exposure time, not a real
 per-node cost from a char-array-to-bitset rename. Not treating either
 timing pass as reliable; a clean, isolated re-measurement is needed before
 drawing a timing conclusion for this item. Correctness is solid regardless.
+
+---
+
+## Item 4: transposed per-point candidate table `cand[point]`
+
+**Change (`src/find_cover.h`):** `Context` gained a second
+`std::array<CoveredBitset, P/2> mCand` alongside the existing `mCover`,
+filled in the same constructor loop (now an `if` instead of an
+unconditional bool assignment, since a class/point pair needs setting a
+bit in *both* tables when the cover condition holds), plus a `cand(pos)`
+accessor mirroring `cover(i)`. Purely additive — nothing in `Dfs`/
+`AvailableChoice`/`find_all_covers_parallel` reads `cand()` yet (that's
+item 6); this item only stores the transpose.
+
+**Verification:** `test.cpp`, all 8 fixed cases, byte-identical.
+
+| K | P | count | sha256 match |
+|---|---|---|---|
+| 10 | 127 | 8228 | MATCH |
+| 10 | 199 | 4417 | MATCH |
+| 10 | 461 | 1 | MATCH |
+| 11 | 131 | 40615 | MATCH |
+| 11 | 199 | 18516 | MATCH |
+| 12 | 139 | 641960 | MATCH |
+| 12 | 199 | 494183 | MATCH |
+| 12 | 211 | 426537 | MATCH |
+
+**Timing:** not measured for this item. `mCand` is filled once per
+`(P,K)` instantiation, inside `Context`'s constructor (via the global
+`context<P,K>` singleton) — negligible relative to the whole search — and
+nothing in the hot path reads it yet, so there is nothing for a timing
+pass to meaningfully show before item 6 lands. (Also: the machine's load
+average was still elevated during this run from prior session activity,
+so a timing comparison right now would be no more trustworthy than item
+3's second pass was.)
