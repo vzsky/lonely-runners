@@ -82,22 +82,20 @@ template <int P, int K> struct Dfs
     const auto saved_choice = state.choice;
 
     const int nextToCover = state.choice.get_next_to_cover(state.covered);
-    for (int i = 0; i < P / 2; ++i)
+    const auto avail   = state.choice.available();
+    const auto choices = (nextToCover == -1) ? avail : (context<P, K>.cand(nextToCover) & avail);
+    choices.for_each([&](int i)
     {
-      if (state.choice.isEliminated(i)) continue;
-      if (nextToCover == -1 || context<P, K>.cover(i)[nextToCover])
-      {
-        state.elems.insert(i + 1);
-        CoveredBitset mem = state.covered;
-        state.covered |= context<P, K>.cover(i);
+      state.elems.insert(i + 1);
+      CoveredBitset mem = state.covered;
+      state.covered |= context<P, K>.cover(i);
 
-        run();
+      run();
 
-        state.elems.remove(i + 1);
-        state.choice.eliminate(i);
-        state.covered = mem;
-      }
-    }
+      state.elems.remove(i + 1);
+      state.choice.eliminate(i);
+      state.covered = mem;
+    });
 
     state.choice = saved_choice;
   }
@@ -114,15 +112,13 @@ private:
 
     const int totalToCover = bitlen - state.covered.count();
 
+    int bestCovering = 0;
+    const auto avail = state.choice.available();
+    avail.for_each([&](int i) { bestCovering = std::max(bestCovering, (nextC & context<P, K>.cover(i)).count()); });
+
     int bestCovering_next = 0;
-    int bestCovering      = 0;
-    for (int i = 0; i < P / 2; ++i)
-    {
-      if (state.choice.isEliminated(i)) continue;
-      int c        = (nextC & context<P, K>.cover(i)).count();
-      bestCovering = std::max(bestCovering, c);
-      if (context<P, K>.cover(i)[nextToCover]) bestCovering_next = std::max(bestCovering_next, c + 1);
-    }
+    (context<P, K>.cand(nextToCover) & avail).for_each([&](int i)
+    { bestCovering_next = std::max(bestCovering_next, (nextC & context<P, K>.cover(i)).count() + 1); });
 
     const int slots = K - state.elems.size();
     return totalToCover > bestCovering_next + bestCovering * (slots - 1);
@@ -216,6 +212,7 @@ public:
 
   bool isEliminated(size_t i) const { return _eliminated.test(i); }
   bool canBeCovered(size_t i) const { return _remaining[i] != 0; }
+  ElimArray available() const { return ~_eliminated; }
 
   // return bit position that should be covered next
   int get_next_to_cover(CoveredBitset current_covered) const

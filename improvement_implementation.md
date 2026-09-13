@@ -322,3 +322,62 @@ Timing vs. baseline at the time (load average 13-17, elevated):
 | 12 | 211 | 115.294s | 86.723s | -24.8% |
 
 </details>
+
+---
+
+## Item 6: restrict candidate enumeration to `cand(t) & avail`
+
+**Change (`src/find_cover.h`):**
+- `AvailableChoice` gained an `available()` accessor (`ElimArray
+  available() const { return ~_eliminated; }`) so callers can get the
+  full "still available" bitset, not just per-index `isEliminated`
+  queries.
+- `Dfs::run`'s main loop: replaced `for (i = 0; i < P/2; ++i) if
+  (!isEliminated(i) && (nextToCover==-1 || cover(i)[nextToCover])) ...`
+  with `(nextToCover == -1) ? avail : (context<P,K>.cand(nextToCover) &
+  avail)`, then `choices.for_each(...)` — only classes that are both
+  available *and* cover the target point, word-scanned directly, instead
+  of testing all `P/2` indices.
+- `early_return_bound`'s `bestCovering`/`bestCovering_next`: `bestCovering`
+  still scans all of `available()` (a bound over every remaining class),
+  now via word-scan instead of testing all `P/2` and filtering by
+  `isEliminated`; `bestCovering_next` restricted to `cand(nextToCover) &
+  available()` instead of scanning all `P/2` and filtering by
+  `cover(i)[nextToCover]`.
+
+**Found and fixed during review:** the reviewer renamed `AvailableChoice`'s
+accessor from `avail()` to `available()`, but `Dfs::run` still called
+`state.choice.avail()` — a one-line fix (renamed the call site to match).
+Confirmed by rebuilding: it doesn't compile without the fix, and does
+(byte-identical to the oracle) with it.
+
+**Verification:** `test.cpp`, all 8 fixed cases, byte-identical — checked
+twice (once before the `avail`/`available` rename, once after, both
+against the same on-disk state you'd get right now).
+
+| K | P | count | sha256 match |
+|---|---|---|---|
+| 10 | 127 | 8228 | MATCH |
+| 10 | 199 | 4417 | MATCH |
+| 10 | 461 | 1 | MATCH |
+| 11 | 131 | 40615 | MATCH |
+| 11 | 199 | 18516 | MATCH |
+| 12 | 139 | 641960 | MATCH |
+| 12 | 199 | 494183 | MATCH |
+| 12 | 211 | 426537 | MATCH |
+
+**Timing vs. baseline** (load average 8-14 at measurement time):
+
+| K | P | baseline | item 6 | Δ |
+|---|---|---|---|---|
+| 10 | 127 | 0.109s | 0.052s | -52.3% |
+| 10 | 199 | 2.881s | 0.875s | -69.6% |
+| 10 | 461 | 116.930s | 45.553s | -61.0% |
+| 11 | 131 | 0.541s | 0.195s | -63.9% |
+| 11 | 199 | 11.090s | 3.349s | -69.8% |
+| 12 | 139 | 6.273s | 3.493s | -44.3% |
+| 12 | 199 | 68.219s | 22.958s | -66.3% |
+| 12 | 211 | 115.294s | 41.165s | -64.3% |
+
+44-70% faster than baseline on every case — the largest win of any item so
+far, matching the plan's "Large" impact rating.
