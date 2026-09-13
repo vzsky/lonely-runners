@@ -881,3 +881,281 @@ share of total nodes. Here it's one closed-form shortcut inside the
 general (redundancy-allowing) search, so its relative contribution to
 total cost is smaller by construction, not because the shortcut itself is
 weaker.
+
+---
+
+## Goal: basegen_trimmed reference timings (the actual K=13 problem)
+
+Everything above validates against a K=10/11/12 dev/test set, chosen for
+faster iteration. The repo's actual target — "13 lonely runners" — is
+K=13, which `find_cover.h` supports (it's templated on `K`) but which
+this log has never actually timed. `../basegen_trimmed.cpp` (one level up
+from this repo) is a hardcoded-K=13 reference implementation of
+basegen's algorithm and is the natural thing to benchmark against to set
+a concrete goal, rather than only ever comparing this port's own
+before/after states to each other.
+
+**What `basegen_trimmed.cpp` actually is:** the `Generator` class inside
+it already has every v6.1-v6.4 refinement described in
+`improvement_plan.md` Part 1 — word-scanned `rarest_uncovered`, the full
+`gain_bound`/`gain_bound2`/`gain_bound3` family, `add_irred_logged`/
+`undo_irred`, ordered/gain-sorted children with the child-gain cutoff —
+but at v5's *capacity* (`NW=4`, `MAXN=240`, the file's own top comment:
+"256 bits: n <= 240 covers p <= 479 (v5-equivalent)"), not v6 proper's
+widened capacity. So it's basegen's most-optimized *algorithm*, just
+capped to smaller primes (`p <= 479` given `MAXN=240`, tighter still
+`p <= 481` from `n=(p-1)/2<=240`). **Confirmed single-threaded**: no
+`<thread>`/`std::thread`/any concurrency primitive anywhere in the file —
+per your instruction, this is simply documented, not treated as a defect
+in the reference.
+
+Its `main()` only exposed a `decomp` mode that runs both halves back to
+back into one shared `out` set via `run_decomposed()`, with no way to
+time either half in isolation. Built a timing harness on a **copy** (not
+an edit) of the file — `main()` replaced with three timed phases, each on
+its own fresh `Generator` instance so `out`/`nodes`/`leaves` state from
+one phase can't leak into another's count or timing: redundant half alone
+(`enumerate_12covers` + `reducible_from_12`), irredundant half alone
+(`enumerate_irredundant13`), and both together on a third fresh instance
+(matching `run_decomposed`'s own order, to get the real combined cost as
+basegen itself would run it) — plus the sum of the two separate times, to
+see how much (if any) the shared-Generator run saves over two independent
+ones. `Generator`'s own algorithm code was not modified.
+
+**Goal primes chosen:** `239` (basegen's own heavily-referenced profiling
+benchmark — its comments cite "p=239" node counts and timings throughout
+Part 1's v6.1-v6.4 entries) as the primary target, `131` as a small/fast
+sanity check, and `461` (already familiar from this repo's own K=10
+regression case, `n=230` fits `MAXN=240`) to see scaling toward the
+capacity ceiling. Not chosen for any deeper reason than "small,
+basegen's-own-reference, and large" — revisit if a better-motivated set
+turns out to matter.
+
+**Results:**
+
+| p | redundant time | redundant count | irredundant time | irredundant count | combined time (fresh) | combined count | sum of separate times |
+|---|---|---|---|---|---|---|---|
+| 131 | 31.024s | 4,512,698 | 230.045s | 3,759,110 | 261.285s | 8,271,808 | 261.069s |
+| 239 | *(killed after 36+ min with zero progress signal — see below)* | | | | | | |
+| 461 | *(not attempted — see below)* | | | | | | |
+
+Note `combined count` (8,271,808) isn't `redundant count + irredundant
+count` — the two halves' output sets overlap somewhat even after
+basegen's own dedup logic, and `run_decomposed`/this harness's "combined"
+phase unions them via the same shared `unordered_set<string> out`, same
+as basegen's own intended usage.
+
+**`p=239` was killed, not completed.** It ran 36+ minutes of wall time
+(single-threaded, so that's real CPU time spent) with *zero* progress
+output — the harness only prints once all three phases finish, and
+basegen's own internal `cerr` progress lines (in `run_decomposed`, e.g.
+`"p="<<p<<" canonical12="<<c12.size()`) aren't reached either since the
+harness calls the sub-methods directly rather than `run_decomposed()`
+itself. With no way to estimate remaining time or see any intermediate
+signal, and given `p=131` alone already took ~4.4 minutes combined, this
+was killed rather than left running indefinitely. `p=461` was never
+attempted, since it's presumably even larger than `p=239`.
+
+**Open follow-up, not yet done:** add basegen's own kind of progress
+instrumentation (periodic `cerr` node-count lines, e.g. every N million
+DFS nodes) to the timing harness before attempting `p=239` again, so a
+long run can be monitored and a reasoned stop/continue decision made
+instead of an open-ended blind wait. Until then, `p=131`'s numbers above
+are the only concrete goal data point for the real K=13 problem.
+
+---
+
+## Goal comparison: this repo's own `find_cover.h` vs. basegen_trimmed at K=13
+
+Prompted by a sanity check on the numbers above: wall-clock alone doesn't
+fairly compare a single-threaded reference (`basegen_trimmed`) against a
+multi-threaded one (`find_cover.h`'s `find_all_covers_parallel`) — this
+machine has 10 cores (`hw.ncpu`/`hw.physicalcpu` = 10; 4 performance + 6
+efficiency, `hw.perflevel0/1.logicalcpu`), so parallelism alone can't
+explain away more than roughly a 10x gap, and even that ceiling is
+optimistic given the heterogeneous cores and the code's own
+`parallelize_core()` (`src/utils.h`) oversubscribing to `max(20, hw)`
+threads regardless of actual core count. Naively dividing wall-clock by
+thread count to "undo" the parallelism credit is also not rigorous — it
+assumes perfect linear scaling, which real workloads never hit. The
+correct fix: measure actual total CPU-seconds (`/usr/bin/time -l`'s
+`user`+`sys`, summed across every thread) instead of guessing.
+
+**Note on what's being compared:** `find_cover.h`'s `find_all_covers_parallel<P,K>()`
+is the *plain general search* with items 3-8's optimizations applied (no
+irredundant/redundant decomposition — that's item 1, currently reverted
+off this branch). `basegen_trimmed`'s `run_decomposed()` *is* the
+decomposition (basegen's whole reason for splitting the search). So this
+is "our tuned general search" vs. "basegen's tuned *and* decomposed
+search" — a comparison that, if anything, is stacked in basegen's favor,
+which makes the result below more notable, not less.
+
+**p=131** (both sides confirmed correct: counts match exactly —
+8,271,808 both ways, an independent cross-check between two unrelated
+codebases):
+
+| | basegen (single-threaded, decomposed) | `find_cover.h` (parallel, general, items 3-8) |
+|---|---|---|
+| Wall-clock | 261.285s | 40.282s |
+| Total CPU-seconds (`user`+`sys`) | 261.285s (single-threaded, so wall = CPU) | 184.84s (182.77 user + 2.07 sys, 9 threads) |
+| Threads used | 1 | 9 |
+
+Even *before* counting parallelism, `find_cover.h`'s general search uses
+less total compute (184.84s vs. 261.285s CPU-seconds, ~1.41x more
+CPU-efficient) despite lacking basegen's decomposition. On top of that,
+real (imperfect — not linear 9x) parallelism brings wall-clock down
+further to 40.28s, a 6.48x wall-clock win and a ~4.6x parallel speedup
+factor (184.84s CPU / 40.28s wall) on 9 threads.
+
+**p=239** (the case basegen was killed on above, at 36+ minutes with zero
+result — no completed basegen number exists for this prime, so no
+independent count cross-check is possible here):
+
+| | basegen (single-threaded, decomposed) | `find_cover.h` (parallel, general, items 3-8) |
+|---|---|---|
+| Wall-clock | killed at 36+ min, incomplete | 298.368s |
+| Total CPU-seconds | unknown (never finished) | 2384.34s (2380.94 user + 3.40 sys, 17 threads) |
+| Count | unknown | 1,449,830 |
+
+`find_cover.h` finished in under 5 minutes wall-clock; basegen was still
+running with no end in sight after 36 minutes. Extrapolating p=131's
+~1.41x CPU-efficiency ratio (not a second confirmed data point, just a
+rough sanity check): basegen would need roughly 2384.34 × 1.41 ≈ 3360s
+(~56 min) of single-threaded time to match this case, consistent with it
+still not being done at 36 min.
+
+**Conclusion so far:** the sanity check's premise (parallelism alone
+can't explain more than ~10x, so check CPU-seconds, not just wall-clock)
+was correct to raise — but once actually measured rather than assumed,
+`find_cover.h`'s plain general search (items 3-8 only, no decomposition)
+comes out *more* CPU-efficient than basegen's fully-decomposed,
+fully-optimized single-threaded reference at p=131, and by a wide
+wall-clock margin at p=239. This is genuinely surprising given
+`find_cover.h` doesn't yet have basegen's decomposition, gain_bound
+(item 7, held off — regressed when tried, see above), or undo-log (item
+11, held off — also regressed). Worth being skeptical of rather than
+declaring victory on two data points: revisit once item 1
+(decomposition) is back in the mix and items 7/9/10/11 are resolved, to
+see whether the gap widens further or basegen's algorithmic advantages
+start to show at larger primes than tested here.
+
+---
+
+## Goal sanity check: the paper's own reported cost, and our own scaling curve
+
+Prompted by a request to sanity-check the paper's own reported
+computational cost, using `find_cover.h` itself rather than
+`basegen_trimmed.cpp` or the paper's tooling.
+
+### The paper's actual prime list and reported cost
+
+Read directly from `../fourteen_lonely_runners/paper.tex` (Table
+`tab:gates`, §6 "Computational cost") rather than assumed from
+`main.cpp` — `main.cpp`'s `LrcVerifier<13>::Primes` turns out to be a
+much smaller/older list (44 primes, up to 461) than what the paper
+actually closes. The paper's real gate set is **111 primes**, in three
+blocks:
+
+- **Small closed** (5): 83, 139, 167, 181, 191
+- **Consecutive** (47), every prime 199 through 479: 199, 211, 223, 227,
+  229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307,
+  311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389,
+  397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479
+- **Tail** (59), 487 through 877: 487, 491, 499, 503, 509, 521, 523, 541,
+  547, 557, 563, 569, 571, 577, 587, 593, 599, 601, 607, 613, 617, 619,
+  631, 641, 643, 647, 653, 659, 661, 673, 677, 683, 691, 701, 709, 719,
+  727, 733, 739, 743, 751, 757, 761, 769, 773, 787, 797, 809, 811, 821,
+  823, 827, 829, 839, 853, 857, 859, 863, 877
+
+The paper reports its own real cost (§6), which is quoted here rather
+than re-derived — this directly answers "how expensive was Stage 1 for
+the paper's own pipeline" without needing an experiment:
+- Campaign: 27 calendar days; ~92 server-days of cloud capacity; ~31,872
+  vCPU-hours of capacity (not continuously saturated).
+- "Each large gate ended with the single-threaded general
+  reducible-branch job... an unavoidable serial tail of roughly three to
+  thirteen wall-hours; representative runs took about **7.5 hours for
+  p=821** and about **12.5 hours for p=859**." (This is their redundant
+  half specifically, single-threaded — the closest thing to an
+  apples-to-apples anchor for what's measured below.)
+- p=863's irredundant-ish half was sharded into 3,022 jobs, ~25 CPU-min
+  avg each, ~1,250 CPU-hours for that one gate.
+- "Small gates up to p=131 typically ran in minutes."
+
+### Our own measurements: `find_cover.h`, K=13, general search (items 3-8), no decomposition
+
+13 primes measured directly (wall via `std::chrono`, CPU-seconds via
+`getrusage(RUSAGE_SELF, ...)` deltas around the call, both in-process;
+`P=131`/`P=239` reused from the earlier goal-comparison section above,
+measured via `/usr/bin/time -l` instead — same metric, different
+measurement mechanism):
+
+| P | count | wall (s) | CPU-s (user+sys) | threads | CPU/wall ratio |
+|---|---|---|---|---|---|
+| 83 | 115,903 | 0.420 | 1.569 | 5 | 3.73 |
+| 131 | 8,271,808 | 40.282 | 184.84 | 9 | 4.59 |
+| 139 | 868,648 | 4.991 | 24.962 | 9 | 5.00 |
+| 167 | 305,971 | 6.020 | 40.158 | 11 | 6.67 |
+| 181 | 1,578,383 | 20.879 | 133.886 | 12 | 6.41 |
+| 191 | 1,832,944 | 35.276 | 243.781 | 13 | 6.91 |
+| 199 | 4,748,938 | 95.082 | 632.493 | 14 | 6.65 |
+| 211 | 6,930,895 | 173.317 | 1256.856 | 15 | 7.25 |
+| 223 | 226,264 | 60.626 | 482.856 | 15 | 7.97 |
+| 227 | 2,667,353 | 233.188 | 1794.680 | 16 | 7.70 |
+| 233 | 434,986 | 162.130 | 1273.919 | 16 | 7.86 |
+| 239 | 1,449,830 | 298.368 | 2384.34 | 17 | 7.99 |
+| 283 | 292,820 | 1422.951 | 11889.731 | 20 | 8.36 |
+
+**Solution count is not monotonic in P** (139 has more solutions than
+167; 227 has an order of magnitude more than 223 or 233) — this matches
+basegen's own documented non-smooth scaling and is the main reason any
+smooth curve fit here should be trusted only loosely.
+
+### Recalibration history (the fit moved as points were added)
+
+Log-log linear regression of CPU-seconds vs. P, refit twice as new points
+came in:
+
+| Dataset | n | fit | R² |
+|---|---|---|---|
+| First 7 (83-211) | 7 | CPU ≈ exp(-29.35)·P^6.656 | not computed |
+| +3 more (223,227,233) +131,239 reused | 12 | CPU ≈ exp(-27.57)·P^6.37 | 0.86 |
+| +283 | 13 | CPU ≈ exp(-29.29)·P^6.71 | not recomputed |
+
+The exponent bounced 6.37 → 6.66 → 6.71 across refits — consistently
+"very steep," but not pinned down to a stable value. `P=283` alone
+landed ~2.5-2.7x above what the 12-point fit predicted for it (predicted
+~560s wall / ~4,400 CPU-s; actual 1,423s wall / 11,890 CPU-s) — a real
+miss, not rounding noise, and it moved the 3-4x-out extrapolation below
+by nearly double. That instability *is* the finding: a handful of points
+in the 83-283 range doesn't pin down behavior at 800+ precisely enough
+to trust a specific number.
+
+### Extrapolated comparison against the paper's own large-prime anchors
+
+Using the 13-point fit (CPU ≈ exp(-29.29)·P^6.71), extrapolated to the
+paper's two reported large-prime data points (P=821, P=859 — 2.9-3.0x
+beyond the largest sampled prime, 283):
+
+| P | our extrapolated CPU-time (undecomposed general search) | paper's reported time (decomposed, redundant-half only, single-threaded) | ratio |
+|---|---|---|---|
+| 821 | ~1,908 CPU-hours (~79.5 CPU-days) | 7.5 CPU-hours | ~254x |
+| 859 | ~2,567 CPU-hours (~107 CPU-days) | 12.5 CPU-hours | ~205x |
+
+(Earlier, weaker fits gave ~110-140x here; the ratio grew by nearly 2x
+just from adding the single P=283 point, underscoring the extrapolation's
+instability.)
+
+**Interpretation:** this is not evidence the paper's numbers are wrong.
+At P=131, `find_cover.h`'s undecomposed general search was already
+*faster* than basegen's fully-decomposed total (184.8 vs. 261.3 CPU-s).
+The 200-250x gap that opens up by P≈820-860 is consistent with
+decomposition's benefit growing sharply with P — small or even negative
+at P~130, enormous at P~850 — which is exactly *why* the decomposition
+(item 1) exists. So the honest conclusion is "this corroborates that
+decomposition becomes essential at that scale," not "the paper's
+specific hour counts look implausible." Actually stress-testing the
+paper's specific 7.5h/12.5h figures would require our own *decomposed*
+search (item 1, currently reverted off this branch) run at a few points
+toward the large end, not further extrapolation of the undecomposed
+search — which was considered and explicitly set aside for this pass.
