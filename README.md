@@ -1,13 +1,18 @@
-# LRC holds for 11, 12, 13 runners
+# The Lonely Runner Conjecture code
 
+LRC holds for 13 runners. 
 > each in a group of up to 13 runners will eventually be lonely
 
 [preprint](https://arxiv.org/abs/2604.23906)
+
+For speed, extensibility, and all the nice thing, we suggest checking out the `latest` branch.
 
 ## branches
 
 - `main` contains the polished code, we checked that this proves k <= 10
 - `for-k-12` is the earlier version of code. we ran this for k=11 and k=12
+- `Allikvere` is the changes inspired by the Allikvere's implementation. See [fourteen-lonely-runner](https://arxiv.org/abs/2609.02604)
+- `latest` is whatever the "recommended" reference I suggest you look at. 
 
 ## Accompanying files:
 
