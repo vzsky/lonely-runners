@@ -211,8 +211,7 @@ public:
   AvailableChoice()
   {
     for (int i = 0; i < P / 2; ++i)
-      for (int pos = 0; pos < bitlen; ++pos)
-        if (context<P, K>.cover(i)[pos]) _remaining[pos]++;
+      context<P, K>.cover(i).for_each([&](int pos) { _remaining[pos]++; });
   }
 
   bool isEliminated(size_t i) const { return _eliminated.test(i); }
@@ -222,20 +221,21 @@ public:
   int get_next_to_cover(CoveredBitset current_covered) const
   {
     int nextToCover = -1, best = std::numeric_limits<int>::max();
-    for (int pos = 0; pos < bitlen; ++pos)
-      if (!current_covered[pos] && _remaining[pos] < best)
-      {
+
+    (~current_covered).for_each([&](int pos){
+      if (_remaining[pos] < best) {
         best        = _remaining[pos];
         nextToCover = pos;
       }
+    });
+
     return nextToCover;
   }
 
   void eliminate(int i)
   {
     _eliminated.set(i);
-    for (int pos = 0; pos < bitlen; ++pos)
-      if (context<P, K>.cover(i)[pos]) _remaining[pos]--;
+    context<P, K>.cover(i).for_each([&](int pos) { _remaining[pos]--; });
   }
 };
 

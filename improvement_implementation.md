@@ -238,3 +238,87 @@ pass to meaningfully show before item 6 lands. (Also: the machine's load
 average was still elevated during this run from prior session activity,
 so a timing comparison right now would be no more trustworthy than item
 3's second pass was.)
+
+---
+
+## Item 5: word-scan bit iteration
+
+**Change, revised after review:** the first pass (below, for the record)
+added a free `for_each_set_bit` function and a hand-written early-exit
+scan in `get_next_to_cover`. Reworked at the reviewer's request into:
+- `Bitset<N>::for_each(auto&& f) const`: a `const`-qualified *member*
+  (visits only the set bits, word + `__builtin_ctzll`, cost proportional
+  to popcount instead of `N`) instead of a free function.
+- `Bitset<N>`'s internals (`w[]`, `NW`, `TAIL_REM`, `TAIL_MASK`, `BitRef`)
+  made `private`; `operator|`, `operator&`, `operator~` converted from
+  free functions (which had reached into `a.w[]` directly) to `const`
+  members, so they no longer need `friend` access.
+- `AvailableChoice`'s constructor and `eliminate()`: `for (pos = 0; pos <
+  bitlen; ++pos) if (context.cover(i)[pos]) ...` replaced with
+  `context<P,K>.cover(i).for_each([&](int pos) { ... });`.
+- `AvailableChoice::get_next_to_cover`: `(~current_covered).for_each(...)`
+  instead of testing every index — **without** the early-exit break the
+  first pass had (basegen's `rarest_uncovered` returning as soon as
+  `_remaining <= 1`), since the member `for_each` has no way to signal
+  "stop" back to the caller. Verified this doesn't change *which*
+  position is returned: `for_each` visits words `0..NW-1` in order and,
+  within each word, repeatedly takes the lowest set bit — i.e. strictly
+  ascending position order, identical to the original `for` loop's order,
+  so the `_remaining[pos] < best` tie-break (keeps the first-seen position
+  on a tie) picks the same position either way. Only effort spent differs
+  (no early stop), not the result.
+
+**Verification:** `test.cpp`, all 8 fixed cases, byte-identical — run
+twice (once on the first free-function pass, once on this reworked
+member-based version).
+
+| K | P | count | sha256 match |
+|---|---|---|---|
+| 10 | 127 | 8228 | MATCH |
+| 10 | 199 | 4417 | MATCH |
+| 10 | 461 | 1 | MATCH |
+| 11 | 131 | 40615 | MATCH |
+| 11 | 199 | 18516 | MATCH |
+| 12 | 139 | 641960 | MATCH |
+| 12 | 199 | 494183 | MATCH |
+| 12 | 211 | 426537 | MATCH |
+
+**Timing vs. baseline**, this reworked version (machine load average
+6.59-13.55 at the time, clean enough after the earlier contention issue
+settled):
+
+| K | P | baseline | item 5 | Δ |
+|---|---|---|---|---|
+| 10 | 127 | 0.109s | 0.112s | +2.8% (noise) |
+| 10 | 199 | 2.881s | 1.800s | -37.5% |
+| 10 | 461 | 116.930s | 63.912s | -45.3% |
+| 11 | 131 | 0.541s | 0.406s | -24.9% |
+| 11 | 199 | 11.090s | 6.363s | -42.6% |
+| 12 | 139 | 6.273s | 4.533s | -27.7% |
+| 12 | 199 | 68.219s | 41.735s | -38.8% |
+| 12 | 211 | 115.294s | 78.920s | -31.6% |
+
+A real, consistent 25-45% speedup on every non-trivial case — as good as
+or slightly better than the first pass's 23-43%, despite dropping the
+early-exit break, matching the plan's "Medium-Large" impact rating.
+
+<details>
+<summary>First pass (superseded by the rework above; kept for the record)</summary>
+
+Added a free `for_each_set_bit(const Bitset<N>&, F&&)` and a hand-written
+early-exit scan in `get_next_to_cover` (return as soon as a position with
+`_remaining <= 1` is found, matching basegen's `rarest_uncovered`).
+Timing vs. baseline at the time (load average 13-17, elevated):
+
+| K | P | baseline | item 5 (first pass) | Δ |
+|---|---|---|---|---|
+| 10 | 127 | 0.109s | 0.116s | +6.4% |
+| 10 | 199 | 2.881s | 1.888s | -34.5% |
+| 10 | 461 | 116.930s | 67.257s | -42.5% |
+| 11 | 131 | 0.541s | 0.418s | -22.8% |
+| 11 | 199 | 11.090s | 6.691s | -39.7% |
+| 12 | 139 | 6.273s | 4.780s | -23.8% |
+| 12 | 199 | 68.219s | 45.960s | -32.6% |
+| 12 | 211 | 115.294s | 86.723s | -24.8% |
+
+</details>

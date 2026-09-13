@@ -4,6 +4,7 @@
 
 template <int N> struct Bitset
 {
+private:
   static constexpr int NW       = (N + 63) / 64;
   static constexpr int TAIL_REM = N % 64;
 
@@ -24,6 +25,7 @@ template <int N> struct Bitset
     }
   };
 
+public:
   BitRef operator[](int i) { return BitRef{w[i >> 6], 1ULL << (i & 63)}; }
   bool operator[](int i) const { return (w[i >> 6] >> (i & 63)) & 1; }
 
@@ -56,13 +58,40 @@ template <int N> struct Bitset
     return *this;
   }
 
-};
+  Bitset operator|(const Bitset& o) const
+  {
+    Bitset r = *this;
+    r |= o;
+    return r;
+  }
 
-template <int N> Bitset<N> operator|(Bitset<N> a, const Bitset<N>& b) { a |= b; return a; }
-template <int N> Bitset<N> operator&(Bitset<N> a, const Bitset<N>& b) { a &= b; return a; }
-template <int N> Bitset<N> operator~(Bitset<N> a)
-{
-  for (int j = 0; j < Bitset<N>::NW; ++j) a.w[j] = ~a.w[j];
-  a.w[Bitset<N>::NW - 1] &= Bitset<N>::TAIL_MASK;
-  return a;
-}
+  Bitset operator&(const Bitset& o) const
+  {
+    Bitset r = *this;
+    r &= o;
+    return r;
+  }
+
+  Bitset operator~() const
+  {
+    Bitset r = *this;
+    for (int j = 0; j < NW; ++j) r.w[j] = ~r.w[j];
+    r.w[NW - 1] &= TAIL_MASK;
+    return r;
+  }
+
+  // for_each would run from low to high
+  void for_each(auto&& f) const
+  {
+    for (int j = 0; j < NW; ++j)
+    {
+      uint64_t word = w[j];
+      while (word)
+      {
+        int i = 64 * j + __builtin_ctzll(word);
+        word &= word - 1;
+        f(i);
+      }
+    }
+  }
+};
