@@ -1,9 +1,12 @@
 #pragma once
 
 #include <cstddef>
+#include <type_traits>
 #include <utility>
 
-template <typename T, std::size_t Capacity> class InlinedVector
+template <typename T, std::size_t Capacity>
+  requires std::is_trivial_v<T>
+class InlinedVector
 {
   std::array<T, Capacity> _data;
   std::size_t _size = 0;

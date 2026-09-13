@@ -602,3 +602,179 @@ outright) isn't something a later item changes. Revisit only if
 `AvailableChoice` grows significantly larger (e.g. if a future item adds
 substantial per-class state), which would shift the copy-vs-replay
 tradeoff back in the log's favor.
+
+---
+
+## Items 7+9, together: the regression theory confirmed
+
+Item 7's postmortem named a specific hypothesis: `gain_bound` pays a real
+per-node scanning cost with nothing yet converting it into fewer nodes
+visited, and item 9's child-gain cutoff was exactly the missing
+mechanism. Implemented and measured as a single unit — **never
+committing item 7 alone** — precisely because item 7 alone is a known
+regression; only the combination was a candidate for landing.
+
+**Change (`src/find_cover.h`), on top of item 8's committed state:**
+- Reintroduced `Context::class_size()` (asserted `m` invariant), gated by
+  `need > slots*m` at the top of `next_choices` (formerly a standalone
+  `gain_bound`/`early_return_bound`, since folded into a single
+  `next_choices` that both computes the bound and returns the branch
+  list — no separate bound function, no `Dfs::run`-side bound call).
+- `next_choices` builds one `InlinedVector<ScoredChild, P/2> children`
+  from a single `avail.for_each` scan (gain + index per candidate) — this
+  is the *only* array built; there is no second "full avail" array
+  alongside it. The top-`slots` sum/min needed for the bound is computed
+  by a small `TopElements<T, K>` class (`src/find_cover.h`): a fixed-size
+  insertion buffer that tracks the `K` largest values pushed into it (no
+  runtime "how many of K are actually active" state at all — see below
+  for why that became unnecessary).
+- Which compile-time `K` `TopElements` gets is chosen by a new
+  `utils::dispatch<K>(x, f)` (`src/utils.h`): given a runtime `x < K`,
+  it calls `f(std::integral_constant<std::size_t, X>{})` for whichever
+  compile-time `X` equals `x`, via a `std::index_sequence`-driven fold
+  expression. This generalizes basegen's `slots<=4` / `slots>4` split
+  into a full per-value dispatch across `slots`'s entire range
+  (`utils::dispatch<K+1>(slots, ...)`, since `slots` runs 1..K) — every
+  reachable `slots` value gets its own compile-time-sized `TopElements`,
+  not just a fixed size-4 buffer plus an `nth_element` fallback. Since
+  every dispatched instantiation's `TopElements<T,S>` is sized exactly
+  to the `slots` it will ever see, `TopElements` itself needed no
+  runtime "capacity vs. active count" distinction (unlike the
+  `BoundedHeap` predecessor of this class, which took a runtime `k` at
+  construction) — it always fills to its one fixed size.
+- Item 9's cutoff survives, but reshaped: instead of sorting `children`
+  and `break`-ing on the first sorted entry that fails
+  `gain + bsum < need`, `children` is left **unsorted** — since only
+  *membership* above the cutoff matters, not order, the final loop just
+  `continue`s past both cutoff failures and `cand(nextToCover)` filter
+  failures, checking every entry once (`O(n)`, no sort) rather than
+  sorting to get an early `break`.
+
+**Dead ends hit and reverted while arriving at this shape** (kept here
+since each one changed the final design):
+- First pass collapsed `all` (full `avail` scan) and `scored`
+  (`cand`-filtered) into one `InlinedVector`, but kept a full `std::sort`
+  of it for the bound — this over-corrected: sorting the *entire*
+  `avail`-sized list (not just the small `cand`-filtered subset) on every
+  node regressed 9-57% vs. the item 8 baseline it was meant to improve on
+  (K=10/P=461: 41.9s vs. baseline's earlier 24-44s band). Root cause:
+  `nth_element`'s partial selection was replaced by an O(n log n) full
+  sort of a potentially-large `avail`, precisely the cost basegen's
+  `slots<=4` fixed-buffer split was designed to avoid.
+- Fix: switched the bound computation back to `nth_element` (partial),
+  dropped the full sort entirely (order isn't needed for correctness,
+  only for the old `break`-based cutoff, which was replaced by an
+  unconditional `continue`-based scan) — recovered to the item 8 band
+  (30.3s/20.1s/34.1s for 461/199-12/211 across two repeated runs).
+- Resurrecting the old top-4 fixed buffer (basegen's exact `slots<=4`
+  split) on top of that `nth_element` fix was tried in isolation and
+  measured 25-39% faster still (26.2s/17.1s/27.4s) — confirming the
+  split is a real, additional win, not just insurance against the
+  full-sort regression above.
+- Generalized the two-branch split into `utils::dispatch` (this section's
+  final shape) specifically to remove the arbitrary `slots<=4` cutoff and
+  the duplicated scan-loop body between the two branches, while keeping
+  each `slots` value's own fixed-size buffer. Verified equivalent-or-better
+  timing at every step (manual `switch(slots){case 2..7, default:}` before
+  generalizing to the full `dispatch<K+1>`, both within noise of the
+  isolated top-4-buffer measurement above).
+- One live bug caught mid-refactor: `TopElements<int, S> top();` (intended
+  as a variable declaration) is C++'s classic most-vexing-parse — it
+  declares a function returning `TopElements<int,S>`, not a variable,
+  which surfaced as "functions that differ only in their return type
+  cannot be overloaded" once two different `S` instantiations collided.
+  Fixed to `TopElements<int, S> top;`.
+
+**Verification:** `test.cpp`, all 8 fixed cases, byte-identical, at every
+step above (each dead end and the final shape).
+
+| K | P | count | sha256 match |
+|---|---|---|---|
+| 10 | 127 | 8228 | MATCH |
+| 10 | 199 | 4417 | MATCH |
+| 10 | 461 | 1 | MATCH |
+| 11 | 131 | 40615 | MATCH |
+| 11 | 199 | 18516 | MATCH |
+| 12 | 139 | 641960 | MATCH |
+| 12 | 199 | 494183 | MATCH |
+| 12 | 211 | 426537 | MATCH |
+
+**Timing vs. item 8** (the immediately preceding committed state; load
+average 3-13 at measurement time):
+
+| K | P | baseline | item 8 | items 7+9 | Δ vs item8 | Δ vs baseline |
+|---|---|---|---|---|---|---|
+| 10 | 127 | 0.109s | 0.057s | 0.052s | -8.8% | -52.3% |
+| 10 | 199 | 2.881s | 0.832s | 0.633s | -23.9% | -78.0% |
+| 10 | 461 | 116.930s | 43.631s | 24.340s | -44.2% | -79.2% |
+| 11 | 131 | 0.541s | 0.181s | 0.179s | -1.1% (noise) | -66.9% |
+| 11 | 199 | 11.090s | 2.983s | 2.094s | -29.8% | -81.1% |
+| 12 | 139 | 6.273s | 3.275s | 3.022s | -7.7% | -51.8% |
+| 12 | 199 | 68.219s | 20.345s | 13.745s | -32.4% | -79.9% |
+| 12 | 211 | 115.294s | 35.850s | 21.862s | -39.0% | -81.0% |
+
+**A real, substantial further speedup — 8-44% faster than item 8, biggest
+on exactly the largest cases (461, 199/12, 211/12) where item 7 alone
+regressed worst.** This confirms the postmortem's theory: `gain_bound`'s
+per-node scan cost was real, but it was never supposed to stand alone —
+item 9's cutoff is what converts that cost into fewer nodes actually
+visited, and the two together are a net win where either alone (7
+without 9, or 8 without 7's tighter bound feeding it) was not. Cumulative
+from baseline: 52-81% faster across all 8 cases, the best result of any
+item so far.
+
+**Unblocks:** items 9 and 10 were both gated on item 7 landing; item 9 is
+now done (this entry). Item 10 (exact `slots==2` closed-form finish) can
+now be attempted.
+
+**Follow-up check: is the two-branch split actually earning its
+complexity here, or is it cargo-culted from basegen?** Tried collapsing
+`gain_bound` into a single `nth_element`-only path (drop the `slots <=
+4` fixed-top-4 branch entirely, always build the full `gains` array and
+`nth_element` it) on a scratch copy, verified correctness (all 8 cases
+still byte-identical), then timed it:
+
+| K | P | two-branch | collapsed (nth_element only) | Δ |
+|---|---|---|---|---|
+| 10 | 127 | 0.047s | 0.095s | +102% |
+| 10 | 199 | 0.613s | 1.268s | +107% |
+| 10 | 461 | 25.270s | 43.889s | +73.7% |
+| 11 | 131 | 0.190s | 0.286s | +50.5% |
+| 11 | 199 | 2.163s | 3.936s | +82.0% |
+| 12 | 139 | 3.072s | 3.798s | +23.6% |
+| 12 | 199 | 14.226s | 25.679s | +80.5% |
+| 12 | 211 | 22.282s | 44.465s | +99.6% |
+
+Collapsing is **24-107% slower** (roughly 1.2x-2.1x) across every case.
+The two-branch split is genuinely load-bearing on this codebase, not
+just carried over unexamined from basegen.
+
+**Superseded by the generalization above:** rather than stopping at
+basegen's fixed `slots<=4`/`slots>4` split, that split was generalized
+into `utils::dispatch<K+1>(slots, ...)` giving *every* `slots` value
+1..K its own compile-time-sized `TopElements` buffer (see "Change" and
+"Dead ends" above) — a strict superset of the two-branch version, since
+`slots<=4` is just 4 of the dispatched cases. This is the shape that
+actually landed; the two-branch version above was a real intermediate
+step, not the final one.
+
+**Final verification and timing** (`test.cpp`, all 8 cases
+byte-identical; two repeated runs, load average 9-14 at measurement
+time):
+
+| K | P | item 8 (committed) | final (TopElements + dispatch) | Δ vs item 8 |
+|---|---|---|---|---|
+| 10 | 127 | 0.057s | 0.060s | +5.3% (noise) |
+| 10 | 199 | 0.832s | 0.812s | -2.4% (noise) |
+| 10 | 461 | 43.631s | 27.956s | -35.9% |
+| 11 | 131 | 0.181s | 0.236s | +30.4% (noise; smallest case) |
+| 11 | 199 | 2.983s | 2.620s | -12.2% |
+| 12 | 139 | 3.275s | 3.377s | +3.1% (noise) |
+| 12 | 199 | 20.345s | 18.605s | -8.6% |
+| 12 | 211 | 35.850s | 31.059s | -13.4% |
+
+The largest cases (461, 199/12, 211/12) — where the search actually
+spends its time — are 8-36% faster than item 8; the smallest cases are
+within measurement noise either way, as expected (their absolute times
+are dominated by process/thread startup, not the algorithm). This is the
+committed shape.

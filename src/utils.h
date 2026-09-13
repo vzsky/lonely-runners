@@ -145,3 +145,33 @@ template <int I, int N, typename F> constexpr void For(F&& f)
     For<int(I + 1), N>(f);
   }
 }
+
+namespace utils
+{
+
+namespace details
+{
+
+template <std::size_t K, typename F, std::size_t... Is>
+auto dispatch_impl(std::size_t x, F&& f, std::index_sequence<Is...>)
+{
+  using R = decltype(f(std::integral_constant<std::size_t, 0>{}));
+  R result{};
+  bool found =
+      ((Is == x ? (result = f(std::integral_constant<std::size_t, Is>{}), true) : false) || ...);
+  assert(found && "dispatch: x out of range");
+  return result;
+}
+
+} // namespace details
+
+// Dispatches a runtime x < K to f(std::integral_constant<std::size_t, X>{})
+// for the matching compile-time X, so f can be a plain auto-parameter
+// lambda (no explicit-template-argument call syntax needed at the call
+// site) while still getting specialized per X.
+template <std::size_t K, typename F> auto dispatch(std::size_t x, F&& f)
+{
+  return details::dispatch_impl<K>(x, std::forward<F>(f), std::make_index_sequence<K>{});
+}
+
+} // namespace utils

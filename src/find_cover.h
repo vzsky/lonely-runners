@@ -9,6 +9,7 @@
 #include <iostream>
 #include <limits>
 #include <numeric>
+#include <optional>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -20,6 +21,34 @@
 
 namespace find_cover
 {
+
+template <typename T, std::size_t K> class TopElements
+{
+  std::array<T,K> buf{};
+
+public:
+  void push(const T& v)
+  {
+    for (std::size_t i = 0; i < K; ++i)
+    {
+      if (v > buf[i])
+      {
+        for (std::size_t z = K - 1; z > i; --z) buf[z] = buf[z - 1];
+        buf[i] = v;
+        break;
+      }
+    }
+  }
+
+  T sum() const
+  {
+    T s{};
+    for (std::size_t i = 0; i < K; ++i) s += buf[i];
+    return s;
+  }
+
+  T min() const { return buf[K - 1]; }
+};
 
 template <int P, int K> struct Context
 {
@@ -39,15 +68,26 @@ template <int P, int K> struct Context
           mCand[pos].set(i);
         }
       }
+
+    // TODO: closed form able?
+    mClassSize = [&]
+    {
+      // every speed covers the same number of time
+      auto c = mCover[0].count();
+      for (int i = 1; i < P / 2; ++i) assert(mCover[i].count() == c);
+      return c;
+    }();
   }
 
   const CoveredBitset& cover(int i) const { return mCover[i]; }
   const CoveredBitset& cand(int pos) const { return mCand[pos]; }
+  int class_size() const { return mClassSize; }
 
 private:
   // NB. ideally this is const after initialization but compile time heavy enough
   CovArray mCover{};
   CovArray mCand{};
+  int mClassSize = 0;
 };
 
 template <int P, int K> static const Context<P, K> context{};
@@ -64,8 +104,9 @@ template <int P, int K> struct Dfs
     CoveredBitset covered;  // time covered so far
     SpeedSet<K> elems;      // elements chosen
     AvailableChoice choice; // available choice we can choose
+  };
 
-  } state;
+  State state;
 
   SetOfSpeedSets<K> solutions{};
 
@@ -78,31 +119,12 @@ template <int P, int K> struct Dfs
       return;
     }
 
-    if (early_return_bound()) return;
+    const auto children = next_choices(state);
 
     const auto saved_choice = state.choice;
 
-    const int nextToCover = state.choice.get_next_to_cover(state.covered);
-    const auto avail   = state.choice.available();
-    const auto choices = (nextToCover == -1) ? avail : (context<P, K>.cand(nextToCover) & avail);
-
-    const CoveredBitset unc = ~state.covered;
-    struct ScoredChild
+    for (int i : children)
     {
-      int gain, index;
-      // sort by higher gain first
-      bool operator < (const ScoredChild& O) const 
-      {
-        return gain != O.gain ? gain > O.gain : index < O.index;
-      }
-    };
-    InlinedVector<ScoredChild, P / 2> children;
-    choices.for_each([&](int ind) { children.emplace_back((context<P, K>.cover(ind) & unc).count(), ind); });
-    std::sort(children.begin(), children.end());
-
-    for (auto & child : children)
-    {
-      int i = child.index;
       state.elems.insert(i + 1);
       CoveredBitset mem = state.covered;
       state.covered |= context<P, K>.cover(i);
@@ -118,27 +140,55 @@ template <int P, int K> struct Dfs
   }
 
 private:
-  bool early_return_bound() const
+  [[nodiscard]] static InlinedVector<int, P / 2> next_choices(State st)
   {
-    const int nextToCover = state.choice.get_next_to_cover(state.covered);
-    if (nextToCover != -1 && !state.choice.canBeCovered(nextToCover)) return true;
-    if (state.elems.size() < K - 4 || nextToCover == -1) return false; // TODO: K - 4 is arbitrary
+    struct ScoredChild
+    {
+      int gain, index;
+    };
 
-    CoveredBitset nextC = ~state.covered;
-    nextC[nextToCover]  = 0;
+    const std::optional<int> nextToCover = st.choice.get_next_to_cover(st.covered);
+    if (nextToCover && !st.choice.canBeCovered(*nextToCover)) return {};
 
-    const int totalToCover = bitlen - state.covered.count();
+    const int need  = bitlen - st.covered.count();
+    const int slots = K - st.elems.size();
 
-    int bestCovering = 0;
-    const auto avail = state.choice.available();
-    avail.for_each([&](int i) { bestCovering = std::max(bestCovering, (nextC & context<P, K>.cover(i)).count()); });
+    if (need > slots * context<P, K>.class_size()) return {};
 
-    int bestCovering_next = 0;
-    (context<P, K>.cand(nextToCover) & avail).for_each([&](int i)
-    { bestCovering_next = std::max(bestCovering_next, (nextC & context<P, K>.cover(i)).count() + 1); });
+    const auto avail        = st.choice.available();
+    const CoveredBitset unc = ~st.covered;
 
-    const int slots = K - state.elems.size();
-    return totalToCover > bestCovering_next + bestCovering * (slots - 1);
+    InlinedVector<ScoredChild, P / 2> children;
+    long long total = 0;
+    long long sum;
+    int mn;
+    const auto ok = utils::dispatch<K + 1>(slots, [&](auto S)
+    {
+      TopElements<int, S> top;
+      avail.for_each([&](int v)
+      {
+        int g = (context<P, K>.cover(v) & unc).count();
+        children.push_back({g, v});
+        total += g;
+        top.push(g);
+      });
+      if (children.size() < slots || total < need) return false;
+      sum = top.sum();
+      mn  = top.min();
+      return true;
+    });
+
+    if (!ok || sum < need) return {};
+
+    InlinedVector<int, P / 2> result;
+    const int first_ele_need = need - sum + mn;
+    for (const auto& child : children)
+    {
+      if (child.gain < first_ele_need) continue;
+      if (nextToCover && !context<P, K>.cand(*nextToCover).test(child.index)) continue;
+      result.push_back(child.index);
+    }
+    return result;
   }
 };
 
@@ -153,13 +203,13 @@ template <int P, int K> static SetOfSpeedSets<K> find_all_covers_parallel()
   elems.insert(1);
   first_covered |= context<P, K>.cover(0);
 
-  int nextToCover1 = base_choice.get_next_to_cover(first_covered);
+  std::optional<int> nextToCover1 = base_choice.get_next_to_cover(first_covered);
 
   const std::vector<int> coord2_candidates = [&]
   { // all possible second coordinate
     std::vector<int> v;
     for (int i = 0; i < P / 2; ++i)
-      if (nextToCover1 == -1 || context<P, K>.cover(i)[nextToCover1]) v.push_back(i);
+      if (!nextToCover1 || context<P, K>.cover(i)[*nextToCover1]) v.push_back(i);
     return v;
   }();
   const size_t ncands = coord2_candidates.size();
@@ -223,21 +273,25 @@ private:
 public:
   AvailableChoice()
   {
-    for (int i = 0; i < P / 2; ++i)
-      context<P, K>.cover(i).for_each([&](int pos) { _remaining[pos]++; });
+    for (int i = 0; i < P / 2; ++i) context<P, K>.cover(i).for_each([&](int pos) { _remaining[pos]++; });
   }
 
   bool isEliminated(size_t i) const { return _eliminated.test(i); }
   bool canBeCovered(size_t i) const { return _remaining[i] != 0; }
   ElimArray available() const { return ~_eliminated; }
 
-  // return bit position that should be covered next
-  int get_next_to_cover(CoveredBitset current_covered) const
+  // Bit position that should be covered next, or nullopt once every
+  // position is already covered.
+  std::optional<int> get_next_to_cover(CoveredBitset current_covered) const
   {
-    int nextToCover = -1, best = std::numeric_limits<int>::max();
+    std::optional<int> nextToCover;
+    int best = std::numeric_limits<int>::max();
 
-    (~current_covered).for_each([&](int pos){
-      if (_remaining[pos] < best) {
+    const auto unc = ~current_covered;
+    unc.for_each([&](int pos)
+    {
+      if (_remaining[pos] < best)
+      {
         best        = _remaining[pos];
         nextToCover = pos;
       }
