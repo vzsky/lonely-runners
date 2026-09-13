@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "bitset.h"
+#include "inlined_vector.h"
 #include "speedset.h"
 #include "utils.h"
 
@@ -84,8 +85,24 @@ template <int P, int K> struct Dfs
     const int nextToCover = state.choice.get_next_to_cover(state.covered);
     const auto avail   = state.choice.available();
     const auto choices = (nextToCover == -1) ? avail : (context<P, K>.cand(nextToCover) & avail);
-    choices.for_each([&](int i)
+
+    const CoveredBitset unc = ~state.covered;
+    struct ScoredChild
     {
+      int gain, index;
+      // sort by higher gain first
+      bool operator < (const ScoredChild& O) const 
+      {
+        return gain != O.gain ? gain > O.gain : index < O.index;
+      }
+    };
+    InlinedVector<ScoredChild, P / 2> children;
+    choices.for_each([&](int ind) { children.emplace_back((context<P, K>.cover(ind) & unc).count(), ind); });
+    std::sort(children.begin(), children.end());
+
+    for (auto & child : children)
+    {
+      int i = child.index;
       state.elems.insert(i + 1);
       CoveredBitset mem = state.covered;
       state.covered |= context<P, K>.cover(i);
@@ -95,7 +112,7 @@ template <int P, int K> struct Dfs
       state.elems.remove(i + 1);
       state.choice.eliminate(i);
       state.covered = mem;
-    });
+    }
 
     state.choice = saved_choice;
   }

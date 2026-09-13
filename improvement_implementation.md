@@ -462,3 +462,71 @@ recover this regression; measuring item 7 combined with 8+9 together (or
 at least re-measuring it with 8 already landed) should be more
 informative than the isolated measurement above. Items 9 and 10 stay
 blocked on this until item 7 is revisited and actually pays for itself.
+
+---
+
+## Item 8: gain-sorted children, computed once per node
+
+Implemented on top of item 6 directly (does not need item 7, per the
+dependency check above). `Dfs::run`'s child loop now scores every
+candidate once (`gain = (cover(v) & unc).count()`, `unc = ~state.covered`
+computed locally just for this — cheap, and independent of the held-off
+`gain_bound`) into a buffer, sorts descending by gain (ties broken by
+ascending class index via `ScoredChild::operator<`, matching v4/v5 +
+v6.1's hoist-out-of-the-comparator fix), then visits children in that
+order instead of raw index order. Doesn't change *which* children get
+visited, only the order — the same "eliminate after visiting" pattern
+governs correctness regardless of visitation order (established earlier
+for `DfsIrred`'s analogous loop, and it's the same combinatorial
+generation mechanism here).
+
+**Three buffer implementations were measured, in order:**
+1. Fixed `std::array<ScoredChild, P/2>` with a manual index counter.
+2. `std::vector<ScoredChild>` (reviewer's rewrite) — correct, but
+   heap-allocates on every single `Dfs::run` call, which is the hottest
+   function in the whole search.
+3. `InlinedVector<T, Capacity>` (`src/inlined_vector.h`, new) — a
+   fixed-capacity, stack-allocated vector with a `push_back`/`emplace_back`
+   API but no heap allocation at all (same backing storage as (1), just
+   with vector-style ergonomics instead of a manual index). This is what's
+   committed.
+
+**Verification:** `test.cpp`, all 8 fixed cases, byte-identical — checked
+after each of the three buffer implementations above.
+
+| K | P | count | sha256 match |
+|---|---|---|---|
+| 10 | 127 | 8228 | MATCH |
+| 10 | 199 | 4417 | MATCH |
+| 10 | 461 | 1 | MATCH |
+| 11 | 131 | 40615 | MATCH |
+| 11 | 199 | 18516 | MATCH |
+| 12 | 139 | 641960 | MATCH |
+| 12 | 199 | 494183 | MATCH |
+| 12 | 211 | 426537 | MATCH |
+
+**Timing, all three buffer implementations vs. item 6** (the immediately
+preceding state — this is the comparison that matters, since item 7's
+regression showed baseline-only comparisons can be misleading; load
+average 8-13 across these runs):
+
+| K | P | item 6 | (1) array | (2) std::vector | (3) InlinedVector (committed) |
+|---|---|---|---|---|---|
+| 10 | 127 | 0.052s | 0.056s | 0.067s | 0.057s |
+| 10 | 199 | 0.875s | 0.814s | 0.911s | 0.832s |
+| 10 | 461 | 45.553s | 39.824s | 41.897s | 43.631s |
+| 11 | 131 | 0.195s | 0.176s | 0.203s | 0.181s |
+| 11 | 199 | 3.349s | 2.941s | 3.129s | 2.983s |
+| 12 | 139 | 3.493s | 3.225s | 3.387s | 3.275s |
+| 12 | 199 | 22.958s | 18.931s | 20.975s | 20.345s |
+| 12 | 211 | 41.165s | 32.730s | 36.975s | 35.850s |
+
+`std::vector` is consistently the slowest of the three (heap alloc per
+node), `InlinedVector` recovers most but not quite all of the plain
+array's win — plausibly the `push_back`/`emplace_back` indexing overhead
+vs. a raw index counter, not investigated further since the difference is
+small and `InlinedVector` is meaningfully better than `std::vector`
+everywhere it was measured. Net result vs. item 6: roughly 5-13% faster
+(vs. the plain array's 7-21%), still a real, consistent win, matching the
+plan's "Medium standalone" impact rating — unlike item 7, which regressed
+under the identical before/after comparison methodology.
