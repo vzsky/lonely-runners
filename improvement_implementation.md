@@ -530,3 +530,75 @@ everywhere it was measured. Net result vs. item 6: roughly 5-13% faster
 (vs. the plain array's 7-21%), still a real, consistent win, matching the
 plan's "Medium standalone" impact rating — unlike item 7, which regressed
 under the identical before/after comparison methodology.
+
+---
+
+## Item 11: attempted, held off (real regression vs. item 8, not committed)
+
+**Not editing `improvement_plan.md` for this either** — same reasoning as
+the item 7 discovery note: this records what was actually measured, not a
+plan revision.
+
+**What was implemented (matches the plan's item 11 text):**
+`AvailableChoice` gained `undo_eliminate(i)`, the exact inverse of
+`eliminate(i)` — `_eliminated.reset(i)` plus re-incrementing `_remaining`
+over `cover(i)`'s set bits. Since `eliminate`/`undo_eliminate` are both
+pure functions of the static `cover(i)` table (no cross-class dependency,
+unlike basegen's `IrState`), undoing doesn't need a position-level log —
+just remembering *which class indices* were eliminated during a node's
+child loop is enough to reverse it exactly, in any order (integer
+increment/decrement and independent bit resets are order-independent;
+confirmed and simplified from an initial reverse-order loop after review
+caught the unnecessary ordering assumption). `Dfs::run`'s
+`const auto saved_choice = state.choice;` / `state.choice = saved_choice;`
+(one full `AvailableChoice` copy + restore per node, regardless of
+branching factor) replaced with an `InlinedVector<int, P/2> touched` log,
+appended to once per child, replayed with a plain `for (int i : touched)
+state.choice.undo_eliminate(i);` after the loop.
+
+**Correctness:** verified against `test.cpp`'s fixed oracle, all 8 cases
+byte-identical — checked for both the initial reverse-order version and
+the simplified forward-order version.
+
+**Timing — a real regression relative to item 8, the state right before
+it** (load average 8-16 across these runs; the pattern — consistently
+worse, worst on the biggest case — doesn't read as noise):
+
+| K | P | item 8 (committed) | item 11 (reverted) | Δ |
+|---|---|---|---|---|
+| 10 | 127 | 0.057s | 0.070s | +22.8% |
+| 10 | 199 | 0.832s | 0.871s | +4.7% |
+| 10 | 461 | 43.631s | 45.018s | +3.2% |
+| 11 | 131 | 0.181s | 0.185s | +2.2% |
+| 11 | 199 | 2.983s | 3.377s | +13.2% |
+| 12 | 139 | 3.275s | 3.380s | +3.2% |
+| 12 | 199 | 20.345s | 22.967s | +12.9% |
+| 12 | 211 | 35.850s | 50.508s | +40.9% |
+
+**Likely cause:** the old code paid one fixed-size struct copy (save +
+restore) per *node*, regardless of branching factor. The undo-log instead
+calls `undo_eliminate(i)` once per *child* — doing the exact same `O(m)`
+word-scan work `eliminate(i)` already did — so it doubles the
+elimination-related work per child rather than paying a single upfront
+copy. `AvailableChoice` (`Bitset<P/2>` plus a `P/2`-byte array, roughly
+30-260 bytes across these primes) is small enough that copying it is a
+near-free `memcpy` on modern hardware; replaying `nch` separate
+bit-scanning lambda calls isn't necessarily cheaper than that once `nch *
+m` becomes comparable to `P/2` — which, empirically, it does for this
+codebase's actual branching factors even after items 6 and 8 restricted
+them. Basegen's own version of this optimization (`add_irred_logged`/
+`undo_irred`) exists inside `dfs_irred`, where the state being logged
+(`IrState`, ~1.4KB) is far larger relative to the per-child log than
+`AvailableChoice` is here — a case where avoiding the big copy plausibly
+does win. The same "measured on a different, more constrained search"
+gap that explained item 7's regression applies here too.
+
+**Decision:** hold off item 11 (not committed; `src/find_cover.h`
+reverted to the item-8 state via `git checkout --`). Nothing later in the
+plan depends on item 11, so this doesn't block anything — unlike item 7,
+there's no obvious "combine with another held-off item and re-measure"
+path here, since the regression's cause (small state, cheap to copy
+outright) isn't something a later item changes. Revisit only if
+`AvailableChoice` grows significantly larger (e.g. if a future item adds
+substantial per-class state), which would shift the copy-vs-replay
+tradeoff back in the log's favor.
