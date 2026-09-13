@@ -153,24 +153,28 @@ against this branch's own history — no new commit for the attempt).
 
 ---
 
-## Item 3: `Bits<N>` type + bitset-backed class availability
+## Item 3: `Bitset<N>` type + bitset-backed class availability
 
-**Change (`src/find_cover.h`):**
-- Added `Bits<N>`: fixed-word bitset (`uint64_t w[NW]`) with `set`/`reset`/
-  `test`/`count`/`any`, a `BitRef` proxy so `operator[]` supports both read
-  and write (matching `std::bitset`'s two forms), and free `|`/`&`/`~`
-  (`~` masks the last word's padding bits via `TAIL_MASK` so they can't
-  leak into a later `count()`/`any()`).
-- `Context<P,K>::CoveredBitset` changed from `std::bitset<P/2>` to
-  `Bits<P/2>` — drop-in, same call sites unchanged.
-- `AvailableChoice` replaced its `std::array<char, P/2> _eliminated` with
-  a `Bits<P/2> avail` (bit set = still available); `isEliminated(i)` is
-  now `!avail.test(i)`, `eliminate(i)` now does `avail.reset(i)`. Kept
-  `_remaining` as-is per the plan (not a basegen idea, but find_cover.h's
-  own optimization basegen doesn't have).
-- Removed the now-unused `<bitset>` include.
+**Change:**
+- Added `Bitset<N>` in its own header, `src/bitset.h`: fixed-word bitset
+  (`uint64_t w[NW]`) with `set`/`reset`/`test`/`count`/`any`, a `BitRef`
+  proxy so `operator[]` supports both read and write (matching
+  `std::bitset`'s two forms), and free `|`/`&`/`~` (`~` masks the last
+  word's padding bits via `TAIL_MASK` so they can't leak into a later
+  `count()`/`any()`).
+- `Context<P,K>::CoveredBitset` (`src/find_cover.h`) changed from
+  `std::bitset<P/2>` to `Bitset<P/2>` — drop-in, same call sites unchanged.
+- `AvailableChoice`'s `ElimArray` changed from `std::array<char, P/2>` to
+  `Bitset<P/2>` — same "eliminated" semantics as before (bit set = class
+  eliminated, matching the old array's `1`), just `_eliminated.test(i)`/
+  `_eliminated.set(i)` instead of array indexing. Kept `_remaining` as-is
+  per the plan (not a basegen idea, but find_cover.h's own optimization
+  basegen doesn't have).
+- Removed the now-unused `<bitset>` include from `find_cover.h`.
 
-**Verification:** `test.cpp` (unmodified), all 8 fixed cases.
+**Verification:** `test.cpp` (unmodified), all 8 fixed cases, run twice
+(once mid-development, once again on the final on-disk state with no
+further code changes) — both runs byte-identical to the oracle.
 
 | K | P | count | sha256 match |
 |---|---|---|---|
@@ -183,27 +187,19 @@ against this branch's own history — no new commit for the attempt).
 | 12 | 199 | 494183 | MATCH |
 | 12 | 211 | 426537 | MATCH |
 
-**Timing vs. baseline:**
-
-| K | P | baseline | item 3 | Δ |
-|---|---|---|---|---|
-| 10 | 127 | 0.109s | 0.145s | +33% (tiny absolute times, noise-dominated) |
-| 10 | 199 | 2.881s | 2.986s | +3.6% |
-| 10 | 461 | 116.930s | 131.882s | +12.8% |
-| 11 | 131 | 0.541s | 0.517s | -4.4% |
-| 11 | 199 | 11.090s | 11.134s | +0.4% |
-| 12 | 139 | 6.273s | 6.159s | -1.8% |
-| 12 | 199 | 68.219s | 68.318s | +0.1% |
-| 12 | 211 | 115.294s | 114.136s | -1.0% |
-
-Mostly flat/noise, but a real ~13% slowdown on the largest case (P=461).
-Expected and consistent with the plan's own framing of this item as an
-**enabler** ("nothing below is cheap without it"), not a standalone win:
-`Bits<N>`'s `BitRef` proxy and per-word loops (`count()`, `&`, `|`, `~`)
-add a small constant overhead per operation that isn't yet paid back,
-since nothing downstream (items 4-10: the `cand` table, word-scan
-iteration, tightened bounds) exists yet to exploit the raw-word access
-this type provides. The most node-heavy case (P=461) shows the largest
-regression, consistent with per-node overhead compounding most there.
-Proceeding to item 4/5 to see whether the enabler pays for itself once
-something actually consumes `w[]` directly.
+**Timing: inconclusive, machine contention.** A first timing pass (on an
+earlier, since-superseded version of this same change) showed a real but
+small ~13% slowdown on the largest case and flat/noise elsewhere,
+consistent with this item being a pure enabler per the plan ("nothing
+below is cheap without it") rather than a standalone win. A second timing
+pass, on the final on-disk state, instead showed 16-27x slowdowns on the
+three longest-running cases (P=461/K=10, P=199/K=12, P=211/K=12) while
+the five short cases stayed near baseline — but `uptime` at the time
+showed load averages of 12/34/30 on a ~10-core M4, i.e. the machine was
+running far more concurrent work than it has cores for (residue from the
+many background builds/searches stacked up over this session). That
+selective pattern — only the longest-running cases hit hard, short ones
+normal — is the signature of contention exposure time, not a real
+per-node cost from a char-array-to-bitset rename. Not treating either
+timing pass as reliable; a clean, isolated re-measurement is needed before
+drawing a timing conclusion for this item. Correctness is solid regardless.

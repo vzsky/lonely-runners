@@ -196,7 +196,7 @@ template <int P, int K> static SetOfSpeedSets<K> find_all_covers_parallel()
 template <int P, int K> struct Dfs<P, K>::State::AvailableChoice
 {
 private:
-  using ElimArray   = std::array<char, P / 2>;
+  using ElimArray   = Bitset<P / 2>;
   using RemainArray = std::array<char, P / 2>;
 
   ElimArray _eliminated{};  // bool for each choice
@@ -209,7 +209,7 @@ public:
         if (context<P, K>.cover(i)[pos]) _remaining[pos]++;
   }
 
-  bool isEliminated(size_t i) const { return _eliminated[i]; }
+  bool isEliminated(size_t i) const { return _eliminated.test(i); }
   bool canBeCovered(size_t i) const { return _remaining[i] != 0; }
 
   // return bit position that should be covered next
@@ -227,7 +227,7 @@ public:
 
   void eliminate(int i)
   {
-    _eliminated[i] = 1;
+    _eliminated.set(i);
     for (int pos = 0; pos < bitlen; ++pos)
       if (context<P, K>.cover(i)[pos]) _remaining[pos]--;
   }
