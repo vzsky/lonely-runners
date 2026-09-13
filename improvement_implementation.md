@@ -381,3 +381,84 @@ against the same on-disk state you'd get right now).
 
 44-70% faster than baseline on every case — the largest win of any item so
 far, matching the plan's "Large" impact rating.
+
+---
+
+## Item 7: attempted, held off (real regression vs. item 6, not committed)
+
+**Deliberately not editing `improvement_plan.md` for this** — the plan's
+own item ordering and reasoning stay as written; this section records
+what was actually measured and why the plan's stated implementation
+order is being deviated from for now (item 8 and item 11 next, item 7
+revisited after), without rewriting the plan itself.
+
+**What was implemented (matches the plan's item 7 text):** replaced
+`early_return_bound` (the old `bestCovering`/`bestCovering_next`
+approximation, gated at `elems.size() >= K - 4`) with a real
+`gain_bound`, structurally equivalent to basegen's v4/v5 `gain_bound` +
+v6.2's refinements: `Context` gained an asserted `class_size()` (`m`)
+invariant; `gain_bound` short-circuits on `need > slots*m`, uses a fixed
+top-4 buffer for `slots <= 4`, falls back to `nth_element` with a
+total-sum shortcut for `slots > 4`, and returns `bsum` for item 9 to reuse
+later. Called unconditionally at the top of `Dfs::run`, not gated by
+`K-4`.
+
+**Correctness:** verified against `test.cpp`'s fixed oracle, all 8 cases
+byte-identical.
+
+**Timing — a real regression relative to item 6, the state right before
+it** (not just noise; consistent across every case):
+
+| K | P | baseline | item 6 (current committed state) | item 7 (uncommitted attempt) | item7 vs item6 |
+|---|---|---|---|---|---|
+| 10 | 127 | 0.109s | 0.052s | 0.086s | +65% slower |
+| 10 | 199 | 2.881s | 0.875s | 1.595s | +82% slower |
+| 10 | 461 | 116.930s | 45.553s | 72.935s | +60% slower |
+| 11 | 131 | 0.541s | 0.195s | 0.372s | +91% slower |
+| 11 | 199 | 11.090s | 3.349s | 7.109s | +112% slower |
+| 12 | 139 | 6.273s | 3.493s | 4.967s | +42% slower |
+| 12 | 199 | 68.219s | 22.958s | 44.952s | +96% slower |
+| 12 | 211 | 115.294s | 41.165s | 77.968s | +89% slower |
+
+(Item 7 is still 20-45% faster than the *original* baseline in absolute
+terms — this isn't a correctness or general-performance problem, it's
+specifically a regression against the immediately preceding, already-fast
+item-6 state.)
+
+**Likely cause:** `gain_bound` now runs unconditionally at every node and
+scans all of `avail` (not `cand`-restricted) to compute the top-`slots`
+gain sum — real, non-trivial per-node cost. The bound it replaced only
+ran near leaves (`elems.size() >= K-4`), where `avail` is already small;
+item 6 (already committed) separately made the actual branching cheap via
+`cand(t) & avail`. Basegen's own ~3x figure for this exact bound was
+measured on `dfs_irred`, which is irredundancy-constrained and keeps
+`avail` much smaller throughout than this general (redundancy-allowing)
+search does. The plan's own dependency note for item 9 — "child-gain
+cutoff... since children are gain-sorted (item 8) and a tight bound
+exists (item 7), a child with gain `g` can only complete the cover if `g
++ bsum >= need`... one `break` instead of visiting the whole dead tail" —
+is plausibly exactly the mechanism that turns `gain_bound`'s scan cost
+into a real win; without it, this search is paying the scan cost with
+nothing yet converting it into fewer nodes visited.
+
+**Dependency check before deciding how to proceed** (re-reading the
+plan's own stated dependencies for items 8-11):
+- **Item 8** (gain-sorted children): depends only on items 5-6. Does
+  **not** need item 7.
+- **Item 9** (child-gain cutoff): depends on items **7 and 8** —
+  explicitly needs `gain_bound`'s `bsum` output for the cutoff test
+  (`child_gain + bsum < need`).
+- **Item 10** (exact slots==2 finish): depends on items 4-5, and the plan
+  explicitly lists item 7 too ("a slots==2-shaped bound to fast-reject").
+- **Item 11** (undo-log): depends only on item 3. Does **not** need item
+  7.
+
+**Decision:** hold off item 7 for now (not committed; `src/find_cover.h`
+reverted to the item-6 state via `git checkout --`). Proceed with item 8
+and item 11 next, both of which are independent of item 7. Revisit item 7
+once item 8 (gain-sorted children) is in place, since item 9's cutoff —
+which needs both 7 and 8 together — is the mechanism most likely to
+recover this regression; measuring item 7 combined with 8+9 together (or
+at least re-measuring it with 8 already landed) should be more
+informative than the isolated measurement above. Items 9 and 10 stay
+blocked on this until item 7 is revisited and actually pays for itself.
